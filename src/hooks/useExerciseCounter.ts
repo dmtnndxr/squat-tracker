@@ -24,13 +24,14 @@ export function useExerciseCounter(onRepCounted: (exercise: keyof SessionCounts)
         previousPoseState,
         currentPoseState: nextPoseState,
         repStarted: repStartedRef.current,
+        hasObservedUp: evaluation.hasObservedUp,
         now: Date.now(),
         lastRepTimestamp: lastRepTimestampRef.current,
       });
 
       repStartedRef.current = transition.repStarted;
       lastRepTimestampRef.current = transition.lastRepTimestamp;
-      previousPoseStateRef.current = nextPoseState;
+      previousPoseStateRef.current = transition.nextPreviousPoseState;
       setCurrentPoseState(nextPoseState);
 
       if (transition.countedExercise) {

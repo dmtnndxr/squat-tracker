@@ -1,4 +1,11 @@
-import type { ExerciseType, Point, PoseEvaluation, PoseState } from "../types/exercise";
+import type {
+  AngleRange,
+  ExerciseType,
+  Point,
+  PoseEvaluation,
+  PoseState,
+  PoseThresholds,
+} from "../types/exercise";
 import { average, calculateAngle } from "./angles";
 
 export const MIN_LANDMARK_VISIBILITY = 0.5;
@@ -46,6 +53,32 @@ function stateFromAngle(angle: number, upThreshold: number, downThreshold: numbe
   return "middle";
 }
 
+export function getDefaultThresholds(exercise: ExerciseType): PoseThresholds {
+  return exercise === "pushup"
+    ? { up: 150, down: 95, source: "default" }
+    : { up: 160, down: 100, source: "default" };
+}
+
+export function getAdaptiveThresholds(exercise: ExerciseType, angleRange: AngleRange): PoseThresholds {
+  const defaults = getDefaultThresholds(exercise);
+
+  if (angleRange.min === null || angleRange.max === null) {
+    return defaults;
+  }
+
+  const spread = angleRange.max - angleRange.min;
+
+  if (spread < 20) {
+    return defaults;
+  }
+
+  return {
+    down: angleRange.min + spread * 0.35,
+    up: angleRange.min + spread * 0.65,
+    source: "adaptive",
+  };
+}
+
 export function getExerciseAngle(exercise: ExerciseType, landmarks: Point[]): number | null {
   if (exercise === "pushup") {
     return average(
@@ -79,23 +112,29 @@ export function getExerciseAngle(exercise: ExerciseType, landmarks: Point[]): nu
   );
 }
 
-export function evaluateExercisePose(exercise: ExerciseType, angle: number | null): PoseEvaluation {
+export function evaluateExercisePose(
+  exercise: ExerciseType,
+  angle: number | null,
+  thresholds = getDefaultThresholds(exercise),
+  angleRange: AngleRange = { min: null, max: null },
+): PoseEvaluation {
   if (angle === null) {
     return {
       poseState: "unknown",
       isPersonDetected: true,
       status: "Bad angle",
       angle: null,
+      hasObservedUp: false,
     };
   }
 
-  const poseState =
-    exercise === "pushup" ? stateFromAngle(angle, 150, 95) : stateFromAngle(angle, 160, 100);
+  const poseState = stateFromAngle(angle, thresholds.up, thresholds.down);
 
   return {
     poseState,
     isPersonDetected: true,
     status: "Detected",
     angle,
+    hasObservedUp: angleRange.max !== null && angleRange.max > thresholds.up,
   };
 }

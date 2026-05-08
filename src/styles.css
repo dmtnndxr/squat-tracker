@@ -111,10 +111,14 @@ h2 {
 .camera-frame canvas {
   height: 100%;
   inset: 0;
-  object-fit: cover;
+  object-fit: contain;
   position: absolute;
-  transform: scaleX(-1);
   width: 100%;
+}
+
+.camera-frame.is-mirrored video,
+.camera-frame.is-mirrored canvas {
+  transform: scaleX(-1);
 }
 
 .camera-frame canvas {
@@ -139,6 +143,28 @@ h2 {
   margin-top: 1rem;
 }
 
+.file-status {
+  align-items: center;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.file-status span {
+  color: #3e474d;
+  font-size: 0.9rem;
+  font-weight: 800;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .primary-button {
   background: var(--accent);
   color: #fff;
@@ -151,6 +177,34 @@ h2 {
 .secondary-button {
   background: #e7ebe8;
   color: #20282a;
+}
+
+.upload-button {
+  align-items: center;
+  background: #e7ebe8;
+  border-radius: 8px;
+  color: #20282a;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 700;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.65rem 0.9rem;
+}
+
+.upload-button input {
+  display: none;
+}
+
+.icon-button {
+  background: #e7ebe8;
+  color: #20282a;
+  flex: 0 0 auto;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  width: 34px;
 }
 
 .danger-button {
@@ -294,6 +348,7 @@ h2 {
   }
 
   .camera-actions button,
+  .camera-actions .upload-button,
   .action-row button {
     width: 100%;
   }

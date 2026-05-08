@@ -32,4 +32,16 @@ export type PoseEvaluation = {
   isPersonDetected: boolean;
   status: string;
   angle: number | null;
+  hasObservedUp: boolean;
+};
+
+export type AngleRange = {
+  min: number | null;
+  max: number | null;
+};
+
+export type PoseThresholds = {
+  up: number;
+  down: number;
+  source: "default" | "adaptive";
 };

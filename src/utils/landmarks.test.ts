@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Point } from "../types/exercise";
-import { evaluateExercisePose, getExerciseAngle, LANDMARK_INDEX } from "./landmarks";
+import { evaluateExercisePose, getAdaptiveThresholds, getExerciseAngle, LANDMARK_INDEX } from "./landmarks";
 
 function landmarksWith(points: Partial<Record<number, Point>>): Point[] {
   const landmarks = Array.from({ length: 33 }, () => ({ x: 0, y: 0, visibility: 0 })) as Point[];
@@ -54,5 +54,27 @@ describe("landmark exercise evaluation", () => {
       status: "Bad angle",
       poseState: "unknown",
     });
+  });
+
+  it("builds adaptive thresholds from the observed angle range", () => {
+    expect(getAdaptiveThresholds("squat", { min: 40, max: 100 })).toEqual({
+      down: 61,
+      up: 79,
+      source: "adaptive",
+    });
+  });
+
+  it("uses provided adaptive thresholds for pose classification", () => {
+    const thresholds = getAdaptiveThresholds("squat", { min: 40, max: 100 });
+
+    expect(evaluateExercisePose("squat", 85, thresholds).poseState).toBe("up");
+    expect(evaluateExercisePose("squat", 55, thresholds).poseState).toBe("down");
+  });
+
+  it("reports whether the observed range includes an up posture", () => {
+    const thresholds = getAdaptiveThresholds("squat", { min: 40, max: 100 });
+
+    expect(evaluateExercisePose("squat", 55, thresholds, { min: 40, max: 100 }).hasObservedUp).toBe(true);
+    expect(evaluateExercisePose("squat", 55, thresholds, { min: 40, max: 70 }).hasObservedUp).toBe(false);
   });
 });

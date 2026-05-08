@@ -5,8 +5,8 @@ import {
   PoseLandmarker,
   type NormalizedLandmark,
 } from "@mediapipe/tasks-vision";
-import type { ExerciseType, Point, PoseEvaluation } from "../types/exercise";
-import { evaluateExercisePose, getExerciseAngle } from "../utils/landmarks";
+import type { AngleRange, ExerciseType, Point, PoseEvaluation, PoseThresholds } from "../types/exercise";
+import { evaluateExercisePose, getAdaptiveThresholds, getDefaultThresholds, getExerciseAngle } from "../utils/landmarks";
 import { appendWindowValue, averageWindow } from "../utils/smoothing";
 
 const MODEL_URL =
@@ -18,7 +18,7 @@ type UsePoseDetectionArgs = {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   exercise: ExerciseType;
-  isCameraActive: boolean;
+  isVideoSourceActive: boolean;
   onPose: (exercise: ExerciseType, evaluation: PoseEvaluation) => void;
 };
 
@@ -26,12 +26,13 @@ export function usePoseDetection({
   videoRef,
   canvasRef,
   exercise,
-  isCameraActive,
+  isVideoSourceActive,
   onPose,
 }: UsePoseDetectionArgs) {
   const poseLandmarkerRef = useRef<PoseLandmarker | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const angleWindowRef = useRef<number[]>([]);
+  const angleRangeRef = useRef<AngleRange>({ min: null, max: null });
   const onPoseRef = useRef(onPose);
   const exerciseRef = useRef(exercise);
   const [isModelReady, setIsModelReady] = useState(false);
@@ -41,7 +42,10 @@ export function usePoseDetection({
     isPersonDetected: false,
     status: "No person detected",
     angle: null,
+    hasObservedUp: false,
   });
+  const [angleRange, setAngleRange] = useState<AngleRange>({ min: null, max: null });
+  const [activeThresholds, setActiveThresholds] = useState<PoseThresholds>(getDefaultThresholds(exercise));
 
   useEffect(() => {
     onPoseRef.current = onPose;
@@ -50,6 +54,9 @@ export function usePoseDetection({
   useEffect(() => {
     exerciseRef.current = exercise;
     angleWindowRef.current = [];
+    angleRangeRef.current = { min: null, max: null };
+    setAngleRange({ min: null, max: null });
+    setActiveThresholds(getDefaultThresholds(exercise));
   }, [exercise]);
 
   useEffect(() => {
@@ -139,8 +146,17 @@ export function usePoseDetection({
   }, [canvasRef]);
 
   useEffect(() => {
-    if (!isCameraActive || !isModelReady) {
+    if (!isVideoSourceActive || !isModelReady) {
       clearCanvas();
+      angleRangeRef.current = { min: null, max: null };
+      setAngleRange({ min: null, max: null });
+      setLatestEvaluation({
+        poseState: "unknown",
+        isPersonDetected: false,
+        status: "No person detected",
+        angle: null,
+        hasObservedUp: false,
+      });
       return;
     }
 
@@ -164,6 +180,7 @@ export function usePoseDetection({
           isPersonDetected: false,
           status: "No person detected",
           angle: null,
+          hasObservedUp: false,
         };
         setLatestEvaluation(evaluation);
         onPoseRef.current(exerciseRef.current, evaluation);
@@ -181,7 +198,28 @@ export function usePoseDetection({
       }
 
       const smoothedAngle = averageWindow(angleWindowRef.current);
-      const evaluation = evaluateExercisePose(exerciseRef.current, smoothedAngle);
+      if (smoothedAngle !== null) {
+        angleRangeRef.current = {
+          min:
+            angleRangeRef.current.min === null
+              ? smoothedAngle
+              : Math.min(angleRangeRef.current.min, smoothedAngle),
+          max:
+            angleRangeRef.current.max === null
+              ? smoothedAngle
+              : Math.max(angleRangeRef.current.max, smoothedAngle),
+        };
+        setAngleRange(angleRangeRef.current);
+      }
+
+      const thresholds = getAdaptiveThresholds(exerciseRef.current, angleRangeRef.current);
+      const evaluation = evaluateExercisePose(
+        exerciseRef.current,
+        smoothedAngle,
+        thresholds,
+        angleRangeRef.current,
+      );
+      setActiveThresholds(thresholds);
       setLatestEvaluation(evaluation);
       onPoseRef.current(exerciseRef.current, evaluation);
 
@@ -195,11 +233,13 @@ export function usePoseDetection({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [clearCanvas, drawLandmarks, isCameraActive, isModelReady, videoRef]);
+  }, [clearCanvas, drawLandmarks, isModelReady, isVideoSourceActive, videoRef]);
 
   return {
     isModelReady,
     poseError,
     latestEvaluation,
+    angleRange,
+    activeThresholds,
   };
 }

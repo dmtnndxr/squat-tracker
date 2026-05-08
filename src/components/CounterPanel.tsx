@@ -1,5 +1,5 @@
 import { RotateCcw, Trash2 } from "lucide-react";
-import type { ExerciseTotals, ExerciseType, PoseState } from "../types/exercise";
+import type { AngleRange, ExerciseTotals, ExerciseType, PoseState, PoseThresholds } from "../types/exercise";
 import type { SessionCounts } from "../hooks/useExerciseCounter";
 
 type CounterPanelProps = {
@@ -8,10 +8,13 @@ type CounterPanelProps = {
   totals: ExerciseTotals;
   currentPoseState: PoseState;
   isCameraActive: boolean;
+  isVideoFileLoaded: boolean;
   isModelReady: boolean;
   isPersonDetected: boolean;
   status: string;
   angle: number | null;
+  angleRange: AngleRange;
+  activeThresholds: PoseThresholds;
   onResetSession: () => void;
   onResetTotals: () => void;
 };
@@ -26,14 +29,19 @@ export function CounterPanel({
   totals,
   currentPoseState,
   isCameraActive,
+  isVideoFileLoaded,
   isModelReady,
   isPersonDetected,
   status,
   angle,
+  angleRange,
+  activeThresholds,
   onResetSession,
   onResetTotals,
 }: CounterPanelProps) {
   const activeSessionCount = selectedExercise === "pushup" ? sessionCounts.pushups : sessionCounts.squats;
+  const sourceLabel = isCameraActive ? "Camera on" : isVideoFileLoaded ? "Video test" : "No source";
+  const hasVideoSource = isCameraActive || isVideoFileLoaded;
 
   return (
     <section className="panel" aria-label="Exercise counters">
@@ -42,8 +50,8 @@ export function CounterPanel({
           <p className="eyebrow">Current exercise</p>
           <h2>{labelExercise(selectedExercise)}</h2>
         </div>
-        <span className={isCameraActive ? "status-pill is-on" : "status-pill"}>
-          {isCameraActive ? "Camera on" : "Camera off"}
+        <span className={hasVideoSource ? "status-pill is-on" : "status-pill"}>
+          {sourceLabel}
         </span>
       </div>
 
@@ -78,6 +86,20 @@ export function CounterPanel({
         <div>
           <dt>Angle</dt>
           <dd>{angle === null ? "Unknown" : `${Math.round(angle)} deg`}</dd>
+        </div>
+        <div>
+          <dt>Angle range</dt>
+          <dd>
+            {angleRange.min === null || angleRange.max === null
+              ? "Unknown"
+              : `${Math.round(angleRange.min)}-${Math.round(angleRange.max)} deg`}
+          </dd>
+        </div>
+        <div>
+          <dt>Thresholds</dt>
+          <dd>
+            {`${Math.round(activeThresholds.down)}/${Math.round(activeThresholds.up)} deg ${activeThresholds.source}`}
+          </dd>
         </div>
       </dl>
 

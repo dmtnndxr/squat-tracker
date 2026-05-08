@@ -11,15 +11,26 @@ import type { ExerciseType } from "./types/exercise";
 function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<ExerciseType>("pushup");
-  const { videoRef, isCameraActive, cameraError, startCamera, stopCamera } = useCamera();
+  const {
+    videoRef,
+    isCameraActive,
+    isVideoFileLoaded,
+    isVideoSourceActive,
+    videoFileName,
+    cameraError,
+    startCamera,
+    stopCamera,
+    loadVideoFile,
+    clearVideoFile,
+  } = useCamera();
   const { totals, incrementTotal, resetLocalTotals } = useLocalExerciseTotals();
   const { sessionCounts, currentPoseState, processPose, resetSession, resetTransition } =
     useExerciseCounter(incrementTotal);
-  const { isModelReady, poseError, latestEvaluation } = usePoseDetection({
+  const { isModelReady, poseError, latestEvaluation, angleRange, activeThresholds } = usePoseDetection({
     videoRef,
     canvasRef,
     exercise: selectedExercise,
-    isCameraActive,
+    isVideoSourceActive,
     onPose: processPose,
   });
 
@@ -30,6 +41,29 @@ function App() {
     },
     [resetTransition],
   );
+
+  const handleStartCamera = useCallback(() => {
+    resetTransition();
+    void startCamera();
+  }, [resetTransition, startCamera]);
+
+  const handleStopCamera = useCallback(() => {
+    stopCamera();
+    resetTransition();
+  }, [resetTransition, stopCamera]);
+
+  const handleLoadVideoFile = useCallback(
+    (file: File) => {
+      resetTransition();
+      void loadVideoFile(file);
+    },
+    [loadVideoFile, resetTransition],
+  );
+
+  const handleClearVideoFile = useCallback(() => {
+    clearVideoFile();
+    resetTransition();
+  }, [clearVideoFile, resetTransition]);
 
   return (
     <main className="app-shell">
@@ -46,10 +80,14 @@ function App() {
           videoRef={videoRef}
           canvasRef={canvasRef}
           isCameraActive={isCameraActive}
+          isVideoFileLoaded={isVideoFileLoaded}
+          videoFileName={videoFileName}
           cameraError={cameraError}
           poseError={poseError}
-          onStartCamera={startCamera}
-          onStopCamera={stopCamera}
+          onStartCamera={handleStartCamera}
+          onStopCamera={handleStopCamera}
+          onLoadVideoFile={handleLoadVideoFile}
+          onClearVideoFile={handleClearVideoFile}
         />
         <CounterPanel
           selectedExercise={selectedExercise}
@@ -57,10 +95,13 @@ function App() {
           totals={totals}
           currentPoseState={currentPoseState}
           isCameraActive={isCameraActive}
+          isVideoFileLoaded={isVideoFileLoaded}
           isModelReady={isModelReady}
           isPersonDetected={latestEvaluation.isPersonDetected}
           status={latestEvaluation.status}
           angle={latestEvaluation.angle}
+          angleRange={angleRange}
+          activeThresholds={activeThresholds}
           onResetSession={resetSession}
           onResetTotals={resetLocalTotals}
         />
