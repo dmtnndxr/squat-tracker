@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# JavaScript dependencies and build output
+node_modules/
+dist/
+*.tsbuildinfo
