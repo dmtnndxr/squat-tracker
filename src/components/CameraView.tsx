@@ -1,7 +1,7 @@
 import { Upload, X } from "lucide-react";
 import type { Messages } from "../i18n/translations";
 
-const SHOW_DEBUG_TOOLS = import.meta.env.DEV;
+const SHOW_DEBUG_TOOLS = import.meta.env.DEV = false;
 
 type CameraViewProps = {
   t: Messages;
@@ -35,7 +35,7 @@ export function CameraView({
       <div className={isCameraActive ? "camera-frame is-mirrored" : "camera-frame"}>
         <video ref={videoRef} playsInline muted={isCameraActive} controls={SHOW_DEBUG_TOOLS && isVideoFileLoaded} />
         <canvas ref={canvasRef} aria-hidden="true" />
-        {!hasSource && <div className="camera-placeholder">{t.cameraPreview}</div>}
+        {!hasSource && <div className="camera-placeholder" aria-label={t.cameraPreview} />}
       </div>
 
       {(cameraError || poseError) && (

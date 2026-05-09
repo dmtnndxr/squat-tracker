@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { Camera, CameraOff, RotateCcw } from "lucide-react";
+import { Camera, CameraOff, CircleStop, Menu, RotateCcw, Settings, History, Download } from "lucide-react";
 import { AppMenu } from "./components/AppMenu";
 import { CameraView } from "./components/CameraView";
 import { CounterPanel } from "./components/CounterPanel";
@@ -12,7 +12,7 @@ import { usePoseDetection } from "./hooks/usePoseDetection";
 import { useRepHistory } from "./hooks/useRepHistory";
 import type { ExerciseType } from "./types/exercise";
 
-const SHOW_DEBUG_TOOLS = import.meta.env.DEV = 0
+const SHOW_DEBUG_TOOLS = false;
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -98,11 +98,36 @@ function App() {
         onClearVideoFile={handleClearVideoFile}
       />
 
+      <aside className="side-nav" aria-label="Operator navigation">
+        <div>
+          <strong>OPERATOR_01</strong>
+          <span>STATUS: READY</span>
+        </div>
+        <nav>
+          <a href="#history">
+            <History size={18} aria-hidden="true" />
+            SESSION HISTORY
+          </a>
+          <a href="#settings">
+            <Settings size={20} aria-hidden="true" />
+            SETTINGS
+          </a>
+        </nav>
+        <button type="button" className="export-button" onClick={() => exportCsv(t.csvFileName)}>
+          EXPORT DATA
+        </button>
+      </aside>
+
       <section className="hud" aria-label={t.appTitle}>
         <header className="hud-topbar">
-          <div>
-            <p className="eyebrow">{t.appSubtitle}</p>
-            <h1>{t.appTitle}</h1>
+          <div className="brand-lockup">
+            <button type="button" className="chrome-icon" aria-label={t.menu}>
+              <Menu size={18} aria-hidden="true" />
+            </button>
+            <div>
+              <h1>REP TRACKER</h1>
+              <p className="eyebrow">// VERSION 4.1.0</p>
+            </div>
           </div>
           <AppMenu
             t={t}
@@ -115,23 +140,29 @@ function App() {
           />
         </header>
 
+        <div className="tracking-alert" role="status">
+          <Camera size={16} aria-hidden="true" />
+          <span>AI POSE TRACKING ACTIVE</span>
+          <i aria-hidden="true" />
+        </div>
+
         <div className="hud-counter" aria-live="polite">
           <span>{selectedExerciseLabel}</span>
-          <strong>{activeSessionCount}</strong>
+          <strong>{activeSessionCount} REPS</strong>
         </div>
 
         <div className="hud-bottom">
           <ExerciseSelector selectedExercise={selectedExercise} t={t} onSelectExercise={handleSelectExercise} />
           <div className="hud-actions">
-            <button type="button" className="primary-button" onClick={handleStartCamera} disabled={isCameraActive}>
-              <Camera size={18} aria-hidden="true" />
-              {t.startCamera}
+            <button
+              type="button"
+              className="stop-session-button"
+              onClick={isCameraActive ? handleStopCamera : handleStartCamera}
+            >
+              {isCameraActive ? <CameraOff size={18} aria-hidden="true" /> : <CircleStop size={18} aria-hidden="true" />}
+              {isCameraActive ? t.stopCamera : t.startCamera}
             </button>
-            <button type="button" className="secondary-button" onClick={handleStopCamera} disabled={!isCameraActive}>
-              <CameraOff size={18} aria-hidden="true" />
-              {t.stopCamera}
-            </button>
-            <button type="button" className="secondary-button compact" onClick={resetSession}>
+            <button type="button" className="secondary-button compact dev-reset" onClick={resetSession}>
               <RotateCcw size={18} aria-hidden="true" />
               {t.resetSession}
             </button>
