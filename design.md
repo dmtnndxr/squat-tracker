@@ -1,122 +1,122 @@
-# Squat Tracker: текущее описание интерфейса и дизайн-подходов
+# Squat Tracker: current interface description and design approaches
 
-## Контекст приложения
+## Application context
 
-`squat-tracker` - браузерный фитнес-счетчик упражнений. Основной сценарий: пользователь включает камеру, выбирает упражнение, выполняет отжимания или приседания, а приложение локально считает повторы с помощью анализа видео и pose detection.
+`squat-tracker` is a browser-based fitness exercise counter. Main scenario: the user turns on the camera, selects an exercise, performs push-ups or squats, and the application counts reps locally using video analysis and pose detection.
 
-Данные хранятся только на устройстве пользователя.
+Data is stored only on the user's device.
 
-## Общий дизайн-подход
+## General design approach
 
-Интерфейс построен как полноэкранный HUD поверх камеры. Камера является основным фоном и рабочим контекстом. Все элементы управления накладываются поверх видео, чтобы пользователь мог тренироваться без перехода между экранами.
+The interface is built as a full-screen HUD over the camera. The camera is the main background and working context. All controls are overlaid on top of the video so the user can train without switching between screens.
 
-Дизайн ближе к спортивному utility-интерфейсу: минимум декоративности, максимум читаемости и быстрых действий.
+The design is closer to a sports utility interface: minimal decoration, maximum readability, and quick actions.
 
-## Основная структура экрана
+## Main screen structure
 
 ### 1. Camera Layer
 
-- Полноэкранный блок камеры.
-- Видео и canvas занимают весь экран.
-- Необходимо сохранить пропорции видео.
-- При активной камере изображение зеркалится через
-- Canvas используется для отрисовки pose landmarks.
-- Если источника видео нет, показывается placeholder `Camera preview` - Или какая-то анимация красивая упражняющегося человека. Я, возможно, сгенерирую ее отдельно.
+- Full-screen camera block.
+- Video and canvas occupy the entire screen.
+- Video proportions must be preserved.
+- When the camera is active, the image is mirrored via
+- Canvas is used to render pose landmarks.
+- If there is no video source, the `Camera preview` placeholder is shown - or some beautiful animation of a person exercising. I may generate it separately.
 
 ### 2. HUD Layer
 
-- Фиксированный overlay поверх камеры.
-- Сетка из трех зон:
-  - верхняя панель с названием приложения и меню;
-  - центральный счетчик;
-  - нижняя зона с выбором упражнения и действиями камеры.
+- Fixed overlay on top of the camera.
+- A grid of three zones:
+  - top panel with the application name and menu;
+  - central counter;
+  - bottom area with exercise selection and camera actions.
 
 ### 3. Debug
 
-- В debug-режиме показывается дополнительная панель состояния - управляется через настройки
-- Есть загрузка тестового видео, статус файла, метрики pose detection, углы, thresholds, состояние модели.
+- In debug mode, an additional status panel is shown - controlled through settings.
+- Includes test video upload, file status, pose detection metrics, angles, thresholds, and model state.
 
-## Ключевые компоненты интерфейса
+## Key interface components
 
 ### CameraView
 
-- Отвечает за полноэкранное видео, canvas, ошибки камеры и pose detection.
-- В debug-режиме позволяет загрузить тестовое видео.
-- Показывает ошибки в фиксированном alert-блоке сверху слева.
-- Ошибки оформлены как светлая красная плашка.
+- Responsible for full-screen video, canvas, camera errors, and pose detection errors.
+- In debug mode, allows loading a test video.
+- Shows errors in a fixed alert block at the top left.
+- Errors are styled as a light red banner.
 
 ### HUD Topbar
 
-Слева:
+Left side:
 
-- маленький uppercase subtitle;
-- крупный заголовок приложения.
+- small uppercase subtitle;
+- large application title.
 
-Справа:
+Right side:
 
-- иконка меню
+- menu icon
 
-Заголовок имеет text-shadow для читаемости поверх видео.
+The title has a text-shadow for readability over the video.
 
-### Центральный счетчик
+### Central counter
 
-- Самый важный элемент интерфейса.
-- Показывает выбранное упражнение и количество повторов в текущем подходе.
+- The most important interface element.
+- Shows the selected exercise and the number of reps in the current set.
 
 ### ExerciseSelector
 
-- Сегментированный контрол из двух вариантов:
+- Segmented control with two options:
   - Push-ups / Отжимания
   - Squats / Приседания
 
 ### Action Buttons
 
-Основные действия:
+Main actions:
 
 - Start camera
 - Stop camera
 
 ### AppMenu
 
-Содержит:
+Contains:
 
-- заголовок Settings;
-- подпись `Stored only on this device`;
-- выбор языка;
-- количество сохраненных повторов;
+- Settings title;
+- `Stored only on this device` subtitle;
+- language selector;
+- number of saved reps;
 - Export CSV;
 - Reset totals;
 - Reset history.
-- включить debug panel
+- enable debug panel
 
 ### CounterPanel
 
-- Dev-панель, фиксированная справа снизу.
-- Показывает:
-  - текущее упражнение;
-  - статус видеоисточника;
-  - счетчик текущего подхода;
+- Dev panel fixed at the bottom right.
+- Shows:
+  - current exercise;
+  - video source status;
+  - current set counter;
   - total push-ups;
   - total squats;
-  - состояние модели;
+  - model state;
   - detection status;
   - pose state;
   - angle;
   - angle range;
   - thresholds.
-- Используется как диагностическая панель, не как основной пользовательский интерфейс.
+- Used as a diagnostic panel, not as the main user interface.
 
-## Адаптивность
+## Responsiveness
 
-Интерфейс рассчитан на mobile-first use case
+The interface is designed for a mobile-first use case
 
-## UX-приоритеты
+## UX priorities
 
-Главные приоритеты текущего интерфейса:
+Main priorities of the current interface:
 
-- камера и счетчик всегда видны;
-- основные действия доступны одним касанием;
-- текущий счет максимально крупный и читаемый;
-- приватность явно указана в меню: данные хранятся только на устройстве;
-- интерфейс не требует навигации между страницами;
-- debug-инструменты отделены от production UI.
+- camera and counter are always visible;
+- main actions are available with one tap;
+- current count is as large and readable as possible;
+- privacy is clearly stated in the menu: data is stored only on the device;
+- the interface does not require navigation between pages;
+- debug tools are separated from the production UI.
