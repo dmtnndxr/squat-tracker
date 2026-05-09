@@ -1,0 +1,23 @@
+{
+  "name": "Exercise Counter",
+  "short_name": "Counter",
+  "description": "A private browser exercise counter for push-ups and squats.",
+  "start_url": "/squat-tracker/",
+  "scope": "/squat-tracker/",
+  "display": "standalone",
+  "background_color": "#10201a",
+  "theme_color": "#10201a",
+  "icons": [
+    {
+      "src": "/squat-tracker/app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/squat-tracker/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

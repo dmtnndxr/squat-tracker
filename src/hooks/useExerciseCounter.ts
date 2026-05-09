@@ -7,7 +7,7 @@ export type SessionCounts = {
   squats: number;
 };
 
-export function useExerciseCounter(onRepCounted: (exercise: keyof SessionCounts) => void) {
+export function useExerciseCounter(onRepCounted: (exercise: ExerciseType, countKey: keyof SessionCounts) => void) {
   const [sessionCounts, setSessionCounts] = useState<SessionCounts>({ pushups: 0, squats: 0 });
   const [currentPoseState, setCurrentPoseState] = useState<PoseState>("unknown");
   const previousPoseStateRef = useRef<PoseState>("unknown");
@@ -40,7 +40,7 @@ export function useExerciseCounter(onRepCounted: (exercise: keyof SessionCounts)
           ...current,
           [countKey]: current[countKey] + 1,
         }));
-        onRepCounted(countKey);
+        onRepCounted(transition.countedExercise, countKey);
       }
     },
     [onRepCounted],

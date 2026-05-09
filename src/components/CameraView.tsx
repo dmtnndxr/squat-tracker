@@ -1,6 +1,10 @@
-import { Camera, CameraOff, Upload, X } from "lucide-react";
+import { Upload, X } from "lucide-react";
+import type { Messages } from "../i18n/translations";
+
+const SHOW_DEBUG_TOOLS = import.meta.env.DEV;
 
 type CameraViewProps = {
+  t: Messages;
   videoRef: React.RefObject<HTMLVideoElement | null>;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   isCameraActive: boolean;
@@ -8,13 +12,12 @@ type CameraViewProps = {
   videoFileName: string | null;
   cameraError: string | null;
   poseError: string | null;
-  onStartCamera: () => void;
-  onStopCamera: () => void;
   onLoadVideoFile: (file: File) => void;
   onClearVideoFile: () => void;
 };
 
 export function CameraView({
+  t,
   videoRef,
   canvasRef,
   isCameraActive,
@@ -22,19 +25,17 @@ export function CameraView({
   videoFileName,
   cameraError,
   poseError,
-  onStartCamera,
-  onStopCamera,
   onLoadVideoFile,
   onClearVideoFile,
 }: CameraViewProps) {
   const hasSource = isCameraActive || isVideoFileLoaded;
 
   return (
-    <section className="camera-section" aria-label="Camera preview">
+    <section className="camera-section" aria-label={t.cameraPreview}>
       <div className={isCameraActive ? "camera-frame is-mirrored" : "camera-frame"}>
-        <video ref={videoRef} playsInline muted={isCameraActive} controls={isVideoFileLoaded} />
+        <video ref={videoRef} playsInline muted={isCameraActive} controls={SHOW_DEBUG_TOOLS && isVideoFileLoaded} />
         <canvas ref={canvasRef} aria-hidden="true" />
-        {!hasSource && <div className="camera-placeholder">Camera preview</div>}
+        {!hasSource && <div className="camera-placeholder">{t.cameraPreview}</div>}
       </div>
 
       {(cameraError || poseError) && (
@@ -43,7 +44,7 @@ export function CameraView({
         </p>
       )}
 
-      {isVideoFileLoaded && (
+      {SHOW_DEBUG_TOOLS && isVideoFileLoaded && (
         <div className="file-status">
           <span>{videoFileName}</span>
           <button type="button" className="icon-button" onClick={onClearVideoFile} aria-label="Clear test video">
@@ -52,31 +53,25 @@ export function CameraView({
         </div>
       )}
 
-      <div className="camera-actions">
-        <button type="button" className="primary-button" onClick={onStartCamera} disabled={isCameraActive}>
-          <Camera size={18} aria-hidden="true" />
-          Start camera
-        </button>
-        <button type="button" className="secondary-button" onClick={onStopCamera} disabled={!isCameraActive}>
-          <CameraOff size={18} aria-hidden="true" />
-          Stop camera
-        </button>
-        <label className="upload-button">
-          <Upload size={18} aria-hidden="true" />
-          Load test video
-          <input
-            type="file"
-            accept="video/*"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) {
-                onLoadVideoFile(file);
-              }
+      <div className="camera-actions dev-only">
+        {SHOW_DEBUG_TOOLS && (
+          <label className="upload-button">
+            <Upload size={18} aria-hidden="true" />
+            Load test video
+            <input
+              type="file"
+              accept="video/*"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) {
+                  onLoadVideoFile(file);
+                }
 
-              event.target.value = "";
-            }}
-          />
-        </label>
+                event.target.value = "";
+              }}
+            />
+          </label>
+        )}
       </div>
     </section>
   );

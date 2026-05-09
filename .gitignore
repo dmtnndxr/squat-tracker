@@ -13,4 +13,4 @@ wheels/
 node_modules/
 dist/
 *.tsbuildinfo
-/video
+/video/*

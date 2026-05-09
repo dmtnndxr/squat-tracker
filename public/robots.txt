@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dmtnndxr.github.io/squat-tracker/sitemap.xml
