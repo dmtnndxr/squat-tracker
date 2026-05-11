@@ -1,108 +1,48 @@
-import { BarChart3, ChevronDown, Database, Download, Globe2, MoreVertical, Trash2, X } from "lucide-react";
-import type { Locale, Messages } from "../i18n/translations";
+import { BarChart3, Info, Settings } from "lucide-react";
+import type { ReactNode } from "react";
+
+export type AppSection = "main" | "overview" | "settings" | "about";
 
 type AppMenuProps = {
-  t: Messages;
-  locale: Locale;
-  historyCount: number;
-  onLocaleChange: (locale: Locale) => void;
-  onExportCsv: () => void;
-  onResetTotals: () => void;
-  onResetHistory: () => void;
+  onNavigate: (section: AppSection) => void;
 };
 
-export function AppMenu({
-  t,
-  locale,
-  historyCount,
-  onLocaleChange,
-  onExportCsv,
-  onResetTotals,
-  onResetHistory,
-}: AppMenuProps) {
-  const formattedCount = new Intl.NumberFormat(locale === "ru" ? "ru-RU" : "en-US").format(historyCount);
+const navItems: Array<{
+  section: Exclude<AppSection, "main">;
+  label: string;
+  icon: ReactNode;
+}> = [
+  {
+    section: "overview",
+    label: "Overview",
+    icon: <BarChart3 size={18} aria-hidden="true" />,
+  },
+  {
+    section: "settings",
+    label: "Settings",
+    icon: <Settings size={18} aria-hidden="true" />,
+  },
+  {
+    section: "about",
+    label: "About",
+    icon: <Info size={18} aria-hidden="true" />,
+  },
+];
 
+export function AppMenu({ onNavigate }: AppMenuProps) {
   return (
-    <details className="app-menu">
-      <summary aria-label={t.menu}>
-        <MoreVertical size={22} aria-hidden="true" />
-      </summary>
-      <div className="menu-panel">
-        <div className="menu-header">
-          <div>
-            <strong>{t.settings}</strong>
-            <span>{t.localOnly}</span>
-          </div>
-          <X size={14} aria-hidden="true" />
-        </div>
-
-        <section className="settings-section metrics-section" aria-label={t.stats}>
-          <h2>
-            <BarChart3 size={16} aria-hidden="true" />
-            PERFORMANCE METRICS
-          </h2>
-          <div className="metric-callout">
-            <span>{t.repsStored}</span>
-            <p>
-              <strong>{formattedCount}</strong>
-              <em>REPS_TOTAL</em>
-            </p>
-          </div>
-        </section>
-
-        <section className="settings-grid" aria-label="Configuration">
-          <label className="menu-field">
-            <span>
-              <Globe2 size={16} aria-hidden="true" />
-              {t.language}
-            </span>
-            <span className="select-shell">
-              <select value={locale} onChange={(event) => onLocaleChange(event.target.value as Locale)}>
-                <option value="en">English (US)</option>
-                <option value="ru">Русский</option>
-              </select>
-              <ChevronDown size={14} aria-hidden="true" />
-            </span>
-          </label>
-
-          <div className="menu-field">
-            <span>
-              <Database size={16} aria-hidden="true" />
-              SYSTEM CONFIG
-            </span>
-            <button type="button" className="debug-toggle" aria-pressed="false">
-              <span>Enable Debug Panel</span>
-              <i aria-hidden="true" />
-            </button>
-          </div>
-        </section>
-
-        <section className="settings-section" aria-label="Data management">
-          <h2>
-            <Database size={16} aria-hidden="true" />
-            DATA MANAGEMENT
-          </h2>
-          <button type="button" className="menu-button export-csv" onClick={onExportCsv} disabled={historyCount === 0}>
-            {t.exportCsv}
-            <Download size={16} aria-hidden="true" />
-          </button>
-          <div className="reset-grid">
-            <button type="button" className="menu-button danger" onClick={onResetTotals}>
-              <Trash2 size={16} aria-hidden="true" />
-              {t.resetTotals}
-            </button>
-            <button type="button" className="menu-button danger" onClick={onResetHistory} disabled={historyCount === 0}>
-              <X size={16} aria-hidden="true" />
-              {t.resetHistory}
-            </button>
-          </div>
-        </section>
-
-        <footer className="settings-footer">
-          <span>OPERATOR STATUS: ENCRYPTED SYNC</span>
-          <span>V 4.2.0-STABLE</span>
-        </footer>
-      </div>
-    </details>
+    <nav className="absolute left-0 top-14 w-56 overflow-hidden rounded-2xl border border-[#444933]/80 bg-[#131314]/95 p-2 shadow-2xl backdrop-blur-xl">
+      {navItems.map((item) => (
+        <button
+          key={item.section}
+          type="button"
+          className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac] transition hover:bg-[#c3f400]/15 hover:text-[#c3f400]"
+          onClick={() => onNavigate(item.section)}
+        >
+          {item.icon}
+          {item.label}
+        </button>
+      ))}
+    </nav>
   );
 }

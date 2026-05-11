@@ -26,6 +26,10 @@ export function useRepHistory() {
     setHistory(resetHistory());
   }, []);
 
+  const startNewSession = useCallback(() => {
+    sessionIdRef.current = crypto.randomUUID();
+  }, []);
+
   const exportCsv = useCallback((fileName: string) => {
     const blob = new Blob([historyToCsv(loadHistory())], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -40,6 +44,7 @@ export function useRepHistory() {
     history,
     recordRep,
     resetLocalHistory,
+    startNewSession,
     exportCsv,
   };
 }
