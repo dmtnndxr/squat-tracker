@@ -7,7 +7,19 @@ export function isLocale(value: string | null): value is Locale {
 }
 
 export function detectLocale(languages: readonly string[] = navigator.languages): Locale {
-  return languages.some((language) => language.toLowerCase().startsWith("ru")) ? "ru" : "en";
+  for (const language of languages) {
+    const normalizedLanguage = language.toLowerCase();
+
+    if (normalizedLanguage.startsWith("ru")) {
+      return "ru";
+    }
+
+    if (normalizedLanguage.startsWith("en")) {
+      return "en";
+    }
+  }
+
+  return "en";
 }
 
 export function loadLocale(storage: Storage = localStorage): Locale {
