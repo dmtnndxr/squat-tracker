@@ -93,6 +93,7 @@ export type Messages = {
   confirmResetHistory: string;
   confirmResetProgress: string;
   unableToStartCamera: string;
+  cameraSecureContextRequired: string;
   unableToLoadPoseModel: string;
   aboutTitle: string;
   aboutDescription: string;
@@ -196,6 +197,8 @@ export const messages: Record<Locale, Messages> = {
     confirmResetHistory: "Delete all locally stored session history?",
     confirmResetProgress: "Delete all exercise totals and session history?",
     unableToStartCamera: "Unable to start camera",
+    cameraSecureContextRequired:
+      "Camera access requires HTTPS or localhost. Open this app over HTTPS to use the camera from another device.",
     unableToLoadPoseModel: "Unable to load pose model",
     aboutTitle: "Local exercise counter",
     aboutDescription:
@@ -300,6 +303,8 @@ export const messages: Record<Locale, Messages> = {
     confirmResetHistory: "Удалить всю локально сохраненную историю подходов?",
     confirmResetProgress: "Удалить все итоги упражнений и историю подходов?",
     unableToStartCamera: "Не удалось включить камеру",
+    cameraSecureContextRequired:
+      "Для доступа к камере нужен HTTPS или localhost. Откройте приложение по HTTPS, чтобы использовать камеру с другого устройства.",
     unableToLoadPoseModel: "Не удалось загрузить модель позы",
     aboutTitle: "Локальный счетчик упражнений",
     aboutDescription:

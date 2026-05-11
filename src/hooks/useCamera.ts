@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export function useCamera(unableToStartCamera: string) {
+type UseCameraMessages = {
+  unableToStartCamera: string;
+  cameraSecureContextRequired: string;
+};
+
+export function useCamera({ unableToStartCamera, cameraSecureContextRequired }: UseCameraMessages) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const objectUrlRef = useRef<string | null>(null);
@@ -45,7 +50,15 @@ export function useCamera(unableToStartCamera: string) {
     clearVideoFile();
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      const getUserMedia = globalThis.navigator?.mediaDevices?.getUserMedia;
+
+      if (!getUserMedia) {
+        setCameraError(cameraSecureContextRequired);
+        setIsCameraActive(false);
+        return;
+      }
+
+      const stream = await getUserMedia.call(globalThis.navigator.mediaDevices, {
         video: {
           facingMode: "user",
           width: { ideal: 1280 },
@@ -66,7 +79,7 @@ export function useCamera(unableToStartCamera: string) {
       setCameraError(error instanceof Error ? error.message : unableToStartCamera);
       setIsCameraActive(false);
     }
-  }, [clearVideoFile, unableToStartCamera]);
+  }, [cameraSecureContextRequired, clearVideoFile, unableToStartCamera]);
 
   const loadVideoFile = useCallback(
     async (file: File) => {

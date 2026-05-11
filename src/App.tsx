@@ -245,7 +245,10 @@ function App() {
     stopCamera,
     loadVideoFile,
     clearVideoFile,
-  } = useCamera(t.unableToStartCamera);
+  } = useCamera({
+    unableToStartCamera: t.unableToStartCamera,
+    cameraSecureContextRequired: t.cameraSecureContextRequired,
+  });
   const { totals, incrementTotal, resetLocalTotals } = useLocalExerciseTotals();
   const { history, recordRep, resetLocalHistory, exportCsv, startNewSession } = useRepHistory();
   const selectedExercise = settings.selectedExercise;
