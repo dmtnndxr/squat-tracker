@@ -586,6 +586,7 @@ function MainScreen({
     <section className="relative min-h-dvh overflow-hidden">
       <CameraView
         t={t}
+        selectedExercise={selectedExercise}
         videoRef={videoRef}
         canvasRef={canvasRef}
         isCameraActive={isCameraActive}

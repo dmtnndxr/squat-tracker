@@ -1,9 +1,16 @@
 import { X } from "lucide-react";
 import type { RefObject } from "react";
 import type { Messages } from "../i18n/translations";
+import type { ExerciseType } from "../types/exercise";
+
+const PLACEHOLDER_IMAGES: Record<ExerciseType, string> = {
+  squat: "/figma-assets/gym-main.png",
+  pushup: "/figma-assets/gym-pushup.png",
+};
 
 type CameraViewProps = {
   t: Messages;
+  selectedExercise: ExerciseType;
   videoRef: RefObject<HTMLVideoElement | null>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   isCameraActive: boolean;
@@ -17,6 +24,7 @@ type CameraViewProps = {
 
 export function CameraView({
   t,
+  selectedExercise,
   videoRef,
   canvasRef,
   isCameraActive,
@@ -45,10 +53,23 @@ export function CameraView({
         />
 
         {!hasSource && (
-          <div
-            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(19,19,20,0.14),rgba(19,19,20,0.22)_45%,rgba(19,19,20,0.86)),url('/figma-assets/gym-main.png')] bg-cover bg-center opacity-75 grayscale"
-            aria-label={t.cameraPreview}
-          />
+          <div className="absolute inset-0" aria-label={t.cameraPreview}>
+            {(Object.keys(PLACEHOLDER_IMAGES) as ExerciseType[]).map((exercise) => (
+              <img
+                key={exercise}
+                src={PLACEHOLDER_IMAGES[exercise]}
+                alt=""
+                className={`absolute inset-0 h-full w-full object-cover grayscale transition-opacity duration-500 ease-out ${
+                  selectedExercise === exercise ? "opacity-75" : "opacity-0"
+                }`}
+                aria-hidden="true"
+              />
+            ))}
+            <div
+              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(19,19,20,0.14),rgba(19,19,20,0.22)_45%,rgba(19,19,20,0.86))]"
+              aria-hidden="true"
+            />
+          </div>
         )}
       </div>
 
