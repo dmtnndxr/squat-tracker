@@ -204,7 +204,7 @@ export const messages: Record<Locale, Messages> = {
     aboutDescription:
       "This app uses your device camera and pose detection to count exercise repetitions locally in the browser. Choose an exercise, start the camera, and perform reps while the app tracks your session and total progress.",
     aboutPrivacy:
-      "Camera frames and rep data stay on this device. The overview and CSV export are built from local browser storage.",
+      "Data is saved only in your browser and may be deleted by the browser without warning. We recommend regularly exporting or backing up your data.",
     csvFileName: "exercise-history.csv",
     seoTitle: "Exercise Counter - Push-up and Squat Counter",
     seoDescription:
@@ -310,7 +310,7 @@ export const messages: Record<Locale, Messages> = {
     aboutDescription:
       "Это приложение использует камеру устройства и распознавание позы, чтобы считать повторы упражнений локально в браузере. Выберите упражнение, включите камеру и выполняйте повторы, пока приложение отслеживает подход и общий прогресс.",
     aboutPrivacy:
-      "Кадры с камеры и данные повторов остаются на этом устройстве. Обзор и экспорт CSV строятся из локального хранилища браузера.",
+      "Данные сохраняются только в вашем браузере и могут быть удалены браузером без предупреждения. Рекомендуем регулярно экспортировать или сохранять резервную копию данных.",
     csvFileName: "exercise-history.csv",
     seoTitle: "Счетчик упражнений - отжимания и приседания",
     seoDescription:
