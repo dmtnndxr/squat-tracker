@@ -710,7 +710,11 @@ function MainScreen({
       <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <button
           type="button"
-          className="inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-3 rounded-md bg-[#c3f400] px-6 text-sm font-black uppercase tracking-[0.1em] text-[#161e00] shadow-[0_18px_50px_rgba(195,244,0,0.22)] transition hover:bg-[#d8ff33] active:scale-[0.99]"
+          className={`inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-3 rounded-md px-6 text-sm font-black uppercase tracking-[0.1em] shadow-[0_18px_50px_rgba(0,0,0,0.24)] transition active:scale-[0.99] ${
+            isCameraActive
+              ? "bg-[#ff6b35] text-[#1f0700] hover:bg-[#ff855c]"
+              : "bg-[#c3f400] text-[#161e00] shadow-[0_18px_50px_rgba(195,244,0,0.22)] hover:bg-[#d8ff33]"
+          }`}
           onClick={onCameraToggle}
         >
           {isCameraActive ? <CameraOff size={20} aria-hidden="true" /> : <Camera size={20} aria-hidden="true" />}
