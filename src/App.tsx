@@ -585,6 +585,8 @@ function MainScreen({
   onDebugPanelCollapsedChange: (isCollapsed: boolean) => void;
   onDebugPanelPositionChange: (position: DebugPanelPosition) => void;
 }) {
+  const isTrackingSourceActive = isCameraActive || isVideoFileLoaded;
+
   return (
     <section className="relative min-h-dvh overflow-hidden">
       <CameraView
@@ -635,20 +637,28 @@ function MainScreen({
         </div>
       </header>
 
-      <div className="pointer-events-none absolute inset-x-4 top-1/2 z-10 -translate-y-1/2 text-center">
-        <div className="mx-auto max-w-md rounded-md border border-white/10 bg-[#131314]/35 px-6 py-7 shadow-2xl backdrop-blur-sm">
-          {isCameraActive && activeSessionCount > 0 ? (
+      <div
+        className={`pointer-events-none absolute inset-x-4 z-10 text-center ${
+          isTrackingSourceActive ? "top-28" : "top-1/2 -translate-y-1/2"
+        }`}
+      >
+        <div
+          className={`mx-auto rounded-md border border-white/10 bg-[#131314]/35 shadow-2xl backdrop-blur-sm ${
+            isTrackingSourceActive ? "max-w-xs px-4 py-3" : "max-w-md px-6 py-7"
+          }`}
+        >
+          {isTrackingSourceActive && activeSessionCount > 0 ? (
             <>
               <p className="text-sm uppercase tracking-[0.28em] text-[#c3f400]">{selectedExerciseLabel}</p>
-              <p className="mt-2 text-7xl font-black leading-none text-white sm:text-8xl">{activeSessionCount}</p>
+              <p className="mt-1 text-5xl font-black leading-none text-white sm:text-6xl">{activeSessionCount}</p>
               <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[#c4c9ac]">{t.currentSession}</p>
             </>
-          ) : isCameraActive ? (
+          ) : isTrackingSourceActive ? (
             <>
-              <p className="text-2xl font-black leading-tight text-white sm:text-4xl">
+              <p className="text-base font-black leading-tight text-white sm:text-lg">
                 {t.startExercisePrompt.replace("{exercise}", selectedExerciseText)}
               </p>
-              <p className="mt-4 text-sm text-[#c4c9ac]">{t.counterUpdatesPrompt}</p>
+              <p className="mt-2 text-xs text-[#c4c9ac]">{t.counterUpdatesPrompt}</p>
             </>
           ) : selectedExerciseTotal === 0 ? (
             <>

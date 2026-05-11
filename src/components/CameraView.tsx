@@ -41,14 +41,14 @@ export function CameraView({
       <div className="relative h-full w-full overflow-hidden">
         <video
           ref={videoRef}
-          className={`absolute inset-0 h-full w-full object-cover ${isCameraActive ? "-scale-x-100" : ""}`}
+          className={`absolute inset-0 h-full w-full bg-black object-contain ${isCameraActive ? "-scale-x-100" : ""}`}
           playsInline
           muted={isCameraActive}
           controls={isVideoFileLoaded}
         />
         <canvas
           ref={canvasRef}
-          className={`pointer-events-none absolute inset-0 h-full w-full object-cover ${isCameraActive ? "-scale-x-100" : ""}`}
+          className={`pointer-events-none absolute inset-0 h-full w-full object-contain ${isCameraActive ? "-scale-x-100" : ""}`}
           aria-hidden="true"
         />
 
