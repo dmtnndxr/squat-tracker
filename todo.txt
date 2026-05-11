@@ -1,0 +1,11 @@
+- fix and test rep detection.
+- want is real scale of video stream? seems like it is cropped. The user must understand that he is falling into the frame, and the video will be recognized correctly. Also, full frame shoild be used for rep detection, not cropped one, need to check that.
+- generate adequate background placeholders, excerise icons, favicon.
+- why when on another tab - count stops?
+- Stop camera button - use another color then Start
+- deploy to github pages if possible
+- fix debug rectangle
+- fix settings swithers rectangles
+- gamification
+- https://apps.apple.com/gb/app/dundun-squat-counter/id1348285355
+- what about battery saving - hide video?
