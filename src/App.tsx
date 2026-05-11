@@ -31,7 +31,15 @@ const SETTINGS_STORAGE_KEY = "exercise_counter_settings_v1";
 type AppSettings = {
   debugEnabled: boolean;
   soundEnabled: boolean;
+  selectedExercise: ExerciseType;
+  debugPanelCollapsed: boolean;
+  debugPanelPosition: DebugPanelPosition;
 };
+
+type DebugPanelPosition = {
+  x: number;
+  y: number;
+} | null;
 
 type HistorySession = {
   sessionId: string;
@@ -50,6 +58,9 @@ type HistoryDay = {
 const DEFAULT_SETTINGS: AppSettings = {
   debugEnabled: false,
   soundEnabled: true,
+  selectedExercise: "squat",
+  debugPanelCollapsed: false,
+  debugPanelPosition: null,
 };
 
 function confirmDestructiveAction(message: string): boolean {
@@ -87,6 +98,23 @@ function loadSettings(): AppSettings {
     return {
       debugEnabled: typeof parsed.debugEnabled === "boolean" ? parsed.debugEnabled : DEFAULT_SETTINGS.debugEnabled,
       soundEnabled: typeof parsed.soundEnabled === "boolean" ? parsed.soundEnabled : DEFAULT_SETTINGS.soundEnabled,
+      selectedExercise:
+        parsed.selectedExercise === "pushup" || parsed.selectedExercise === "squat"
+          ? parsed.selectedExercise
+          : DEFAULT_SETTINGS.selectedExercise,
+      debugPanelCollapsed:
+        typeof parsed.debugPanelCollapsed === "boolean"
+          ? parsed.debugPanelCollapsed
+          : DEFAULT_SETTINGS.debugPanelCollapsed,
+      debugPanelPosition:
+        parsed.debugPanelPosition &&
+        typeof parsed.debugPanelPosition === "object" &&
+        typeof parsed.debugPanelPosition.x === "number" &&
+        Number.isFinite(parsed.debugPanelPosition.x) &&
+        typeof parsed.debugPanelPosition.y === "number" &&
+        Number.isFinite(parsed.debugPanelPosition.y)
+          ? { x: parsed.debugPanelPosition.x, y: parsed.debugPanelPosition.y }
+          : DEFAULT_SETTINGS.debugPanelPosition,
     };
   } catch {
     return DEFAULT_SETTINGS;
@@ -197,11 +225,10 @@ function buildHistoryDays(history: ReturnType<typeof useRepHistory>["history"], 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const [selectedExercise, setSelectedExercise] = useState<ExerciseType>("squat");
+  const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const [activeSection, setActiveSection] = useState<AppSection>("main");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(() => new Set());
-  const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const { locale, setLocale, t } = useLocale();
   const {
     videoRef,
@@ -217,6 +244,7 @@ function App() {
   } = useCamera();
   const { totals, incrementTotal, resetLocalTotals } = useLocalExerciseTotals();
   const { history, recordRep, resetLocalHistory, exportCsv, startNewSession } = useRepHistory();
+  const selectedExercise = settings.selectedExercise;
 
   const ensureAudioContext = useCallback(() => {
     audioContextRef.current ??= new AudioContext();
@@ -292,7 +320,7 @@ function App() {
 
   const handleSelectExercise = useCallback(
     (exercise: ExerciseType) => {
-      setSelectedExercise(exercise);
+      setSettings((current) => ({ ...current, selectedExercise: exercise }));
       resetTransition();
     },
     [resetTransition],
@@ -405,6 +433,8 @@ function App() {
           canvasRef={canvasRef}
           isMenuOpen={isMenuOpen}
           debugEnabled={settings.debugEnabled}
+          debugPanelCollapsed={settings.debugPanelCollapsed}
+          debugPanelPosition={settings.debugPanelPosition}
           isModelReady={isModelReady}
           currentPoseState={currentPoseState}
           latestEvaluation={latestEvaluation}
@@ -418,6 +448,12 @@ function App() {
           onClearVideoFile={handleClearVideoFile}
           onResetSession={handleResetSession}
           onResetTotals={handleResetTotals}
+          onDebugPanelCollapsedChange={(debugPanelCollapsed) =>
+            setSettings((current) => ({ ...current, debugPanelCollapsed }))
+          }
+          onDebugPanelPositionChange={(debugPanelPosition) =>
+            setSettings((current) => ({ ...current, debugPanelPosition }))
+          }
         />
       ) : (
         <ContentScreen title={sectionTitle(activeSection)} onBack={() => setActiveSection("main")}>
@@ -470,6 +506,8 @@ function MainScreen({
   canvasRef,
   isMenuOpen,
   debugEnabled,
+  debugPanelCollapsed,
+  debugPanelPosition,
   isModelReady,
   currentPoseState,
   latestEvaluation,
@@ -483,6 +521,8 @@ function MainScreen({
   onClearVideoFile,
   onResetSession,
   onResetTotals,
+  onDebugPanelCollapsedChange,
+  onDebugPanelPositionChange,
 }: {
   t: ReturnType<typeof useLocale>["t"];
   selectedExercise: ExerciseType;
@@ -501,6 +541,8 @@ function MainScreen({
   canvasRef: RefObject<HTMLCanvasElement | null>;
   isMenuOpen: boolean;
   debugEnabled: boolean;
+  debugPanelCollapsed: boolean;
+  debugPanelPosition: DebugPanelPosition;
   isModelReady: boolean;
   currentPoseState: string;
   latestEvaluation: {
@@ -525,6 +567,8 @@ function MainScreen({
   onClearVideoFile: () => void;
   onResetSession: () => void;
   onResetTotals: () => void;
+  onDebugPanelCollapsedChange: (isCollapsed: boolean) => void;
+  onDebugPanelPositionChange: (position: DebugPanelPosition) => void;
 }) {
   return (
     <section className="relative min-h-dvh overflow-hidden">
@@ -603,6 +647,10 @@ function MainScreen({
           angle={latestEvaluation.angle}
           angleRange={angleRange}
           activeThresholds={activeThresholds}
+          isCollapsed={debugPanelCollapsed}
+          position={debugPanelPosition}
+          onCollapsedChange={onDebugPanelCollapsedChange}
+          onPositionChange={onDebugPanelPositionChange}
           onResetSession={onResetSession}
           onResetTotals={onResetTotals}
           onLoadVideoFile={onLoadVideoFile}

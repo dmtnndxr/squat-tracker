@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, FileVideo, GripHorizontal, RotateCcw, Trash2, Upload } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import type { SessionCounts } from "../hooks/useExerciseCounter";
 import type { Messages } from "../i18n/translations";
 import type { AngleRange, ExerciseTotals, ExerciseType, PoseState, PoseThresholds } from "../types/exercise";
@@ -18,7 +18,11 @@ type CounterPanelProps = {
   angle: number | null;
   angleRange: AngleRange;
   activeThresholds: PoseThresholds | { up: number; down: number; source: string };
+  isCollapsed: boolean;
+  position: { x: number; y: number } | null;
   videoFileName: string | null;
+  onCollapsedChange: (isCollapsed: boolean) => void;
+  onPositionChange: (position: { x: number; y: number }) => void;
   onResetSession: () => void;
   onResetTotals: () => void;
   onLoadVideoFile: (file: File) => void;
@@ -59,7 +63,11 @@ export function CounterPanel({
   angle,
   angleRange,
   activeThresholds,
+  isCollapsed,
+  position,
   videoFileName,
+  onCollapsedChange,
+  onPositionChange,
   onResetSession,
   onResetTotals,
   onLoadVideoFile,
@@ -67,8 +75,6 @@ export function CounterPanel({
 }: CounterPanelProps) {
   const panelRef = useRef<HTMLElement | null>(null);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const activeSessionCount = selectedExercise === "pushup" ? sessionCounts.pushups : sessionCounts.squats;
   const sourceLabel = isCameraActive ? t.cameraOn : isVideoFileLoaded ? "Test video" : t.noSource;
   const panelStatus = displayStatus(isPersonDetected, status);
@@ -85,11 +91,11 @@ export function CounterPanel({
     const maxX = Math.max(margin, window.innerWidth - rect.width - margin);
     const maxY = Math.max(margin, window.innerHeight - rect.height - margin);
 
-    setPosition({
+    onPositionChange({
       x: Math.min(Math.max(clientX - dragOffsetRef.current.x, margin), maxX),
       y: Math.min(Math.max(clientY - dragOffsetRef.current.y, margin), maxY),
     });
-  }, []);
+  }, [onPositionChange]);
 
   const handlePointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
@@ -161,7 +167,7 @@ export function CounterPanel({
             type="button"
             className="grid h-8 w-8 place-items-center rounded-sm bg-white/5 text-white transition hover:bg-white/10"
             onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => setIsCollapsed((current) => !current)}
+            onClick={() => onCollapsedChange(!isCollapsed)}
             aria-label={isCollapsed ? "Expand debug panel" : "Collapse debug panel"}
             aria-expanded={!isCollapsed}
           >
