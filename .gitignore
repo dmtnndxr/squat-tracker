@@ -1,16 +1,6 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-
-# Virtual environments
-.venv
-
 # JavaScript dependencies and build output
 node_modules/
 dist/
 *.tsbuildinfo
 /video/*
+.DS_Store
