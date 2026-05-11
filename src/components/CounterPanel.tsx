@@ -29,24 +29,55 @@ type CounterPanelProps = {
   onClearVideoFile: () => void;
 };
 
-function displayStatus(isPersonDetected: boolean, status: string): string {
+function displayStatus(t: Messages, isPersonDetected: boolean, status: string): string {
   if (!isPersonDetected) {
-    return "No person detected";
+    return t.statusNoPersonDetected;
   }
 
   if (/bad/i.test(status)) {
-    return "Bad angle";
+    return t.statusBadAngle;
   }
 
   if (/down/i.test(status)) {
-    return "Down";
+    return t.statusDown;
   }
 
   if (/up/i.test(status)) {
-    return "Up";
+    return t.statusUp;
   }
 
-  return status || "Tracking";
+  if (/detected/i.test(status)) {
+    return t.statusDetected;
+  }
+
+  return status || t.statusTracking;
+}
+
+function displayPoseState(t: Messages, poseState: PoseState | string): string {
+  switch (poseState) {
+    case "up":
+      return t.statusUp;
+    case "down":
+      return t.statusDown;
+    case "middle":
+      return t.poseMiddle;
+    case "unknown":
+      return t.poseUnknown;
+    default:
+      return poseState || t.unknown;
+  }
+}
+
+function displayThresholdSource(t: Messages, source: string): string {
+  if (source === "adaptive") {
+    return t.sourceAdaptive;
+  }
+
+  if (source === "default") {
+    return t.sourceDefault;
+  }
+
+  return source;
 }
 
 export function CounterPanel({
@@ -76,8 +107,8 @@ export function CounterPanel({
   const panelRef = useRef<HTMLElement | null>(null);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
   const activeSessionCount = selectedExercise === "pushup" ? sessionCounts.pushups : sessionCounts.squats;
-  const sourceLabel = isCameraActive ? t.cameraOn : isVideoFileLoaded ? "Test video" : t.noSource;
-  const panelStatus = displayStatus(isPersonDetected, status);
+  const sourceLabel = isCameraActive ? t.cameraOn : isVideoFileLoaded ? t.testVideo : t.noSource;
+  const panelStatus = displayStatus(t, isPersonDetected, status);
 
   const movePanel = useCallback((clientX: number, clientY: number) => {
     const panel = panelRef.current;
@@ -155,7 +186,7 @@ export function CounterPanel({
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#00dbe9]">
             <GripHorizontal size={14} aria-hidden="true" />
-            Debug panel
+            {t.debugPanel}
           </p>
           <h2 className="mt-1 truncate text-base font-black uppercase tracking-[0.08em] text-white">{panelStatus}</h2>
         </div>
@@ -168,7 +199,7 @@ export function CounterPanel({
             className="grid h-8 w-8 place-items-center rounded-sm bg-white/5 text-white transition hover:bg-white/10"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={() => onCollapsedChange(!isCollapsed)}
-            aria-label={isCollapsed ? "Expand debug panel" : "Collapse debug panel"}
+            aria-label={isCollapsed ? t.expandDebugPanel : t.collapseDebugPanel}
             aria-expanded={!isCollapsed}
           >
             {isCollapsed ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
@@ -179,24 +210,24 @@ export function CounterPanel({
       {!isCollapsed && (
         <div className="max-h-[42dvh] resize overflow-auto p-4">
           <dl className="grid gap-2">
-            <DebugRow label="Model" value={isModelReady ? "Ready" : "Loading"} />
-            <DebugRow label="Session" value={`${activeSessionCount} reps`} />
-            <DebugRow label="Push-ups total" value={String(totals.pushups)} />
-            <DebugRow label="Squats total" value={String(totals.squats)} />
-            <DebugRow label="Position" value={String(currentPoseState)} />
-            <DebugRow label="Raw status" value={status || t.unknown} />
-            <DebugRow label="Angle" value={angle === null ? t.unknown : `${Math.round(angle)} deg`} />
+            <DebugRow label={t.model} value={isModelReady ? t.ready : t.loading} />
+            <DebugRow label={t.session} value={`${activeSessionCount} ${t.reps}`} />
+            <DebugRow label={t.totalPushups} value={String(totals.pushups)} />
+            <DebugRow label={t.totalSquats} value={String(totals.squats)} />
+            <DebugRow label={t.position} value={displayPoseState(t, currentPoseState)} />
+            <DebugRow label={t.rawStatus} value={displayStatus(t, isPersonDetected, status)} />
+            <DebugRow label={t.angle} value={angle === null ? t.unknown : `${Math.round(angle)} ${t.degreesShort}`} />
             <DebugRow
-              label="Angle range"
+              label={t.angleRange}
               value={
                 angleRange.min === null || angleRange.max === null
                   ? t.unknown
-                  : `${Math.round(angleRange.min)}-${Math.round(angleRange.max)} deg`
+                  : `${Math.round(angleRange.min)}-${Math.round(angleRange.max)} ${t.degreesShort}`
               }
             />
             <DebugRow
-              label="Thresholds"
-              value={`${Math.round(activeThresholds.down)}/${Math.round(activeThresholds.up)} deg ${activeThresholds.source}`}
+              label={t.thresholds}
+              value={`${Math.round(activeThresholds.down)}/${Math.round(activeThresholds.up)} ${t.degreesShort} ${displayThresholdSource(t, activeThresholds.source)}`}
             />
           </dl>
 
@@ -207,7 +238,7 @@ export function CounterPanel({
                 <span className="truncate">{videoFileName}</span>
               </span>
               <button type="button" className="text-[#c3f400] hover:text-white" onClick={onClearVideoFile}>
-                Clear
+                {t.clearTestVideo}
               </button>
             </div>
           )}
@@ -215,7 +246,7 @@ export function CounterPanel({
           <div className="mt-4 grid gap-2">
             <label className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-[#c3f400] px-3 text-xs font-black uppercase tracking-[0.08em] text-[#c3f400] transition hover:bg-[#c3f400] hover:text-[#161e00]">
               <Upload size={15} aria-hidden="true" />
-              Load test video
+              {t.loadTestVideo}
               <input
                 className="hidden"
                 type="file"
@@ -236,7 +267,7 @@ export function CounterPanel({
                 onClick={onResetSession}
               >
                 <RotateCcw size={15} aria-hidden="true" />
-                Session
+                {t.session}
               </button>
               <button
                 type="button"
@@ -244,7 +275,7 @@ export function CounterPanel({
                 onClick={onResetTotals}
               >
                 <Trash2 size={15} aria-hidden="true" />
-                Totals
+                {t.resetTotals}
               </button>
             </div>
           </div>

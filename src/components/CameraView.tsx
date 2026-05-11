@@ -68,7 +68,7 @@ export function CameraView({
             type="button"
             className="grid h-7 w-7 shrink-0 place-items-center rounded-sm text-[#c4c9ac] transition hover:bg-white/10 hover:text-white"
             onClick={onClearVideoFile}
-            aria-label="Clear test video"
+            aria-label={t.clearTestVideo}
           >
             <X size={16} aria-hidden="true" />
           </button>

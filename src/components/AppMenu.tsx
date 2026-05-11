@@ -1,35 +1,37 @@
 import { BarChart3, Info, Settings } from "lucide-react";
 import type { ReactNode } from "react";
+import type { Messages } from "../i18n/translations";
 
 export type AppSection = "main" | "overview" | "settings" | "about";
 
 type AppMenuProps = {
+  t: Messages;
   onNavigate: (section: AppSection) => void;
 };
 
 const navItems: Array<{
   section: Exclude<AppSection, "main">;
-  label: string;
+  labelKey: "overview" | "settings" | "about";
   icon: ReactNode;
 }> = [
   {
     section: "overview",
-    label: "Overview",
+    labelKey: "overview",
     icon: <BarChart3 size={18} aria-hidden="true" />,
   },
   {
     section: "settings",
-    label: "Settings",
+    labelKey: "settings",
     icon: <Settings size={18} aria-hidden="true" />,
   },
   {
     section: "about",
-    label: "About",
+    labelKey: "about",
     icon: <Info size={18} aria-hidden="true" />,
   },
 ];
 
-export function AppMenu({ onNavigate }: AppMenuProps) {
+export function AppMenu({ t, onNavigate }: AppMenuProps) {
   return (
     <nav className="absolute left-0 top-14 w-56 overflow-hidden rounded-md border border-[#444933]/80 bg-[#131314]/95 p-2 shadow-2xl backdrop-blur-xl">
       {navItems.map((item) => (
@@ -40,7 +42,7 @@ export function AppMenu({ onNavigate }: AppMenuProps) {
           onClick={() => onNavigate(item.section)}
         >
           {item.icon}
-          {item.label}
+          {t[item.labelKey]}
         </button>
       ))}
     </nav>

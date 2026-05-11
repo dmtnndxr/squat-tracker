@@ -23,7 +23,7 @@ import { useLocale } from "./hooks/useLocale";
 import { useLocalExerciseTotals } from "./hooks/useLocalExerciseTotals";
 import { usePoseDetection } from "./hooks/usePoseDetection";
 import { useRepHistory } from "./hooks/useRepHistory";
-import type { Locale } from "./i18n/translations";
+import type { Locale, Messages } from "./i18n/translations";
 import type { ExerciseTotals, ExerciseType } from "./types/exercise";
 
 const SETTINGS_STORAGE_KEY = "exercise_counter_settings_v1";
@@ -121,12 +121,8 @@ function loadSettings(): AppSettings {
   }
 }
 
-function formatExerciseName(exercise: ExerciseType, locale: Locale): string {
-  if (locale === "ru") {
-    return exercise === "pushup" ? "отжимания" : "приседания";
-  }
-
-  return exercise === "pushup" ? "push-ups" : "squats";
+function formatExerciseName(exercise: ExerciseType, t: Messages): string {
+  return exercise === "pushup" ? t.pushupsLower : t.squatsLower;
 }
 
 function formatTime(date: Date, locale: Locale): string {
@@ -149,18 +145,18 @@ function exerciseTotal(totals: ExerciseTotals, exercise: ExerciseType): number {
   return exercise === "pushup" ? totals.pushups : totals.squats;
 }
 
-function summarizeCounts(counts: SessionCounts, locale: Locale): string {
+function summarizeCounts(counts: SessionCounts, t: Messages): string {
   const parts = [];
 
   if (counts.pushups > 0) {
-    parts.push(`${counts.pushups} ${formatExerciseName("pushup", locale)}`);
+    parts.push(`${counts.pushups} ${formatExerciseName("pushup", t)}`);
   }
 
   if (counts.squats > 0) {
-    parts.push(`${counts.squats} ${formatExerciseName("squat", locale)}`);
+    parts.push(`${counts.squats} ${formatExerciseName("squat", t)}`);
   }
 
-  return parts.length > 0 ? parts.join(", ") : "0 reps";
+  return parts.length > 0 ? parts.join(", ") : t.noReps;
 }
 
 function buildHistoryDays(history: ReturnType<typeof useRepHistory>["history"], locale: Locale): HistoryDay[] {
@@ -241,7 +237,7 @@ function App() {
     stopCamera,
     loadVideoFile,
     clearVideoFile,
-  } = useCamera();
+  } = useCamera(t.unableToStartCamera);
   const { totals, incrementTotal, resetLocalTotals } = useLocalExerciseTotals();
   const { history, recordRep, resetLocalHistory, exportCsv, startNewSession } = useRepHistory();
   const selectedExercise = settings.selectedExercise;
@@ -285,6 +281,7 @@ function App() {
     canvasRef,
     exercise: selectedExercise,
     isVideoSourceActive,
+    messages: { unableToLoadPoseModel: t.unableToLoadPoseModel },
     onPose: processPose,
   });
 
@@ -316,7 +313,7 @@ function App() {
   const selectedExerciseTotal = exerciseTotal(totals, selectedExercise);
   const totalReps = totals.pushups + totals.squats;
   const historyDays = useMemo(() => buildHistoryDays(history, locale), [history, locale]);
-  const selectedExerciseText = formatExerciseName(selectedExercise, locale);
+  const selectedExerciseText = formatExerciseName(selectedExercise, t);
 
   const handleSelectExercise = useCallback(
     (exercise: ExerciseType) => {
@@ -352,37 +349,37 @@ function App() {
   );
 
   const handleClearVideoFile = useCallback(() => {
-    if (!confirmDestructiveAction("Clear the loaded test video?")) {
+    if (!confirmDestructiveAction(t.confirmClearTestVideo)) {
       return;
     }
 
     clearVideoFile();
     resetTransition();
-  }, [clearVideoFile, resetTransition]);
+  }, [clearVideoFile, resetTransition, t.confirmClearTestVideo]);
 
   const handleResetSession = useCallback(() => {
-    if (!confirmDestructiveAction("Reset the current session counts?")) {
+    if (!confirmDestructiveAction(t.confirmResetSession)) {
       return;
     }
 
     resetSession();
-  }, [resetSession]);
+  }, [resetSession, t.confirmResetSession]);
 
   const handleResetTotals = useCallback(() => {
-    if (!confirmDestructiveAction("Delete all locally stored exercise totals?")) {
+    if (!confirmDestructiveAction(t.confirmResetTotals)) {
       return;
     }
 
     resetLocalTotals();
-  }, [resetLocalTotals]);
+  }, [resetLocalTotals, t.confirmResetTotals]);
 
   const handleResetHistory = useCallback(() => {
-    if (!confirmDestructiveAction("Delete all locally stored session history?")) {
+    if (!confirmDestructiveAction(t.confirmResetHistory)) {
       return;
     }
 
     resetLocalHistory();
-  }, [resetLocalHistory]);
+  }, [resetLocalHistory, t.confirmResetHistory]);
 
   const handleSoundChange = useCallback(
     (soundEnabled: boolean) => {
@@ -456,9 +453,10 @@ function App() {
           }
         />
       ) : (
-        <ContentScreen title={sectionTitle(activeSection)} onBack={() => setActiveSection("main")}>
+        <ContentScreen t={t} title={sectionTitle(activeSection, t)} onBack={() => setActiveSection("main")}>
           {activeSection === "overview" && (
             <OverviewScreen
+              t={t}
               locale={locale}
               totals={totals}
               totalReps={totalReps}
@@ -472,6 +470,7 @@ function App() {
 
           {activeSection === "settings" && (
             <SettingsScreen
+              t={t}
               locale={locale}
               debugEnabled={settings.debugEnabled}
               soundEnabled={settings.soundEnabled}
@@ -481,7 +480,7 @@ function App() {
             />
           )}
 
-          {activeSection === "about" && <AboutScreen />}
+          {activeSection === "about" && <AboutScreen t={t} />}
         </ContentScreen>
       )}
     </main>
@@ -598,11 +597,13 @@ function MainScreen({
           >
             {isMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
           </button>
-          {isMenuOpen && <AppMenu onNavigate={onNavigate} />}
+          {isMenuOpen && <AppMenu t={t} onNavigate={onNavigate} />}
         </div>
 
         <div className="rounded-md border border-[#444933]/60 bg-[#131314]/65 px-4 py-2 text-right text-[10px] uppercase tracking-[0.18em] text-[#c4c9ac] backdrop-blur">
-          <span className="block text-[#c3f400]">{isCameraActive || isVideoFileLoaded ? "Tracking active" : "Camera ready"}</span>
+          <span className="block text-[#c3f400]">
+            {isCameraActive || isVideoFileLoaded ? t.trackingActive : t.cameraReady}
+          </span>
           <span>{selectedExerciseLabel}</span>
         </div>
       </header>
@@ -613,18 +614,18 @@ function MainScreen({
             <>
               <p className="text-sm uppercase tracking-[0.28em] text-[#c3f400]">{selectedExerciseLabel}</p>
               <p className="mt-2 text-7xl font-black leading-none text-white sm:text-8xl">{activeSessionCount}</p>
-              <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[#c4c9ac]">Current session</p>
+              <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[#c4c9ac]">{t.currentSession}</p>
             </>
           ) : isCameraActive ? (
             <>
               <p className="text-2xl font-black leading-tight text-white sm:text-4xl">
-                Start doing {selectedExerciseText} to see the count here.
+                {t.startExercisePrompt.replace("{exercise}", selectedExerciseText)}
               </p>
-              <p className="mt-4 text-sm text-[#c4c9ac]">The counter updates as a valid rep is completed.</p>
+              <p className="mt-4 text-sm text-[#c4c9ac]">{t.counterUpdatesPrompt}</p>
             </>
           ) : (
             <>
-              <p className="text-sm uppercase tracking-[0.28em] text-[#c4c9ac]">Total local reps</p>
+              <p className="text-sm uppercase tracking-[0.28em] text-[#c4c9ac]">{t.totalLocalReps}</p>
               <p className="mt-2 text-7xl font-black leading-none text-[#c3f400] sm:text-8xl">{selectedExerciseTotal}</p>
               <p className="mt-3 text-xs uppercase tracking-[0.2em] text-white">{selectedExerciseLabel}</p>
             </>
@@ -666,7 +667,7 @@ function MainScreen({
           onClick={onCameraToggle}
         >
           {isCameraActive ? <CameraOff size={20} aria-hidden="true" /> : <Camera size={20} aria-hidden="true" />}
-          {isCameraActive ? "Turn off camera" : "Turn on camera"}
+          {isCameraActive ? t.turnOffCamera : t.turnOnCamera}
         </button>
         <ExerciseSelector selectedExercise={selectedExercise} t={t} onSelectExercise={onSelectExercise} />
       </div>
@@ -675,10 +676,12 @@ function MainScreen({
 }
 
 function ContentScreen({
+  t,
   title,
   onBack,
   children,
 }: {
+  t: Messages;
   title: string;
   onBack: () => void;
   children: ReactNode;
@@ -691,7 +694,7 @@ function ContentScreen({
             type="button"
             className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-[#444933] bg-[#1c1b1c] text-[#c4c9ac] transition hover:border-[#c3f400] hover:text-[#c3f400]"
             onClick={onBack}
-            aria-label="Back to main screen"
+            aria-label={t.backToMain}
           >
             <X size={20} aria-hidden="true" />
           </button>
@@ -704,6 +707,7 @@ function ContentScreen({
 }
 
 function OverviewScreen({
+  t,
   locale,
   totals,
   totalReps,
@@ -713,6 +717,7 @@ function OverviewScreen({
   onExportCsv,
   onResetHistory,
 }: {
+  t: Messages;
   locale: Locale;
   totals: ExerciseTotals;
   totalReps: number;
@@ -725,15 +730,15 @@ function OverviewScreen({
   return (
     <div className="grid gap-6">
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="Total Reps" value={totalReps} />
-        <StatCard label="Squats" value={totals.squats} />
-        <StatCard label="Push-ups" value={totals.pushups} />
+        <StatCard label={t.totalReps} value={totalReps} />
+        <StatCard label={t.squats} value={totals.squats} />
+        <StatCard label={t.pushups} value={totals.pushups} />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-black uppercase tracking-[0.12em] text-white">Activity by day</h2>
-          <p className="mt-1 text-sm text-[#c4c9ac]">Sessions are grouped from locally stored rep events.</p>
+          <h2 className="text-lg font-black uppercase tracking-[0.12em] text-white">{t.activityByDay}</h2>
+          <p className="mt-1 text-sm text-[#c4c9ac]">{t.sessionsGrouped}</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -742,7 +747,7 @@ function OverviewScreen({
             onClick={onExportCsv}
           >
             <Download size={17} aria-hidden="true" />
-            Export CSV
+            {t.exportCsv}
           </button>
           <button
             type="button"
@@ -751,7 +756,7 @@ function OverviewScreen({
             disabled={historyDays.length === 0}
           >
             <RotateCcw size={17} aria-hidden="true" />
-            Reset
+            {t.reset}
           </button>
         </div>
       </div>
@@ -759,7 +764,7 @@ function OverviewScreen({
       <div className="grid gap-3">
         {historyDays.length === 0 ? (
           <div className="rounded-md border border-dashed border-[#444933] bg-[#1c1b1c]/70 p-6 text-[#c4c9ac]">
-            No session history yet. Start the camera and complete reps to fill this overview.
+            {t.noSessionHistory}
           </div>
         ) : (
           historyDays.map((day) => {
@@ -774,7 +779,7 @@ function OverviewScreen({
                 >
                   <div>
                     <h3 className="font-bold text-white">{day.label}</h3>
-                    <p className="mt-1 text-sm text-[#c4c9ac]">{summarizeCounts(day.totals, locale)}</p>
+                    <p className="mt-1 text-sm text-[#c4c9ac]">{summarizeCounts(day.totals, t)}</p>
                   </div>
                   {isExpanded ? <ChevronDown size={20} aria-hidden="true" /> : <ChevronRight size={20} aria-hidden="true" />}
                 </button>
@@ -787,7 +792,7 @@ function OverviewScreen({
                         className="grid gap-1 rounded-sm bg-[#131314]/70 p-4 text-sm sm:grid-cols-[1fr_auto] sm:items-center"
                       >
                         <span className="font-bold text-white">
-                          Session {index + 1}: {summarizeCounts(session.counts, locale)}
+                          {t.session} {index + 1}: {summarizeCounts(session.counts, t)}
                         </span>
                         <span className="text-[#c4c9ac]">
                           {formatTime(session.start, locale)}-{formatTime(session.end, locale)}
@@ -806,6 +811,7 @@ function OverviewScreen({
 }
 
 function SettingsScreen({
+  t,
   locale,
   debugEnabled,
   soundEnabled,
@@ -813,6 +819,7 @@ function SettingsScreen({
   onDebugChange,
   onSoundChange,
 }: {
+  t: Messages;
   locale: Locale;
   debugEnabled: boolean;
   soundEnabled: boolean;
@@ -822,42 +829,40 @@ function SettingsScreen({
 }) {
   return (
     <div className="grid gap-4">
-      <SettingsRow icon={<Settings size={20} aria-hidden="true" />} label="Language">
+      <SettingsRow icon={<Settings size={20} aria-hidden="true" />} label={t.language}>
         <select
           className="min-h-11 rounded-md border border-[#444933] bg-[#131314] px-4 text-sm font-bold text-white outline-none focus:border-[#c3f400]"
           value={locale}
           onChange={(event) => onLocaleChange(event.target.value as Locale)}
         >
-          <option value="en">English</option>
-          <option value="ru">Russian</option>
+          <option value="en">{t.english}</option>
+          <option value="ru">{t.russian}</option>
         </select>
       </SettingsRow>
 
-      <SettingsRow icon={<Activity size={20} aria-hidden="true" />} label="Debug Panel">
-        <ToggleButton enabled={debugEnabled} onChange={onDebugChange} />
+      <SettingsRow icon={<Activity size={20} aria-hidden="true" />} label={t.debugPanelSetting}>
+        <ToggleButton t={t} enabled={debugEnabled} onChange={onDebugChange} />
       </SettingsRow>
 
-      <SettingsRow icon={<Volume2 size={20} aria-hidden="true" />} label="Sound">
-        <ToggleButton enabled={soundEnabled} onChange={onSoundChange} />
+      <SettingsRow icon={<Volume2 size={20} aria-hidden="true" />} label={t.sound}>
+        <ToggleButton t={t} enabled={soundEnabled} onChange={onSoundChange} />
       </SettingsRow>
     </div>
   );
 }
 
-function AboutScreen() {
+function AboutScreen({ t }: { t: Messages }) {
   return (
     <article className="rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-6 shadow-2xl sm:p-8">
       <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#c3f400] text-[#161e00]">
         <Info size={24} aria-hidden="true" />
       </div>
-      <h2 className="text-2xl font-black uppercase tracking-[0.1em] text-white">Local exercise counter</h2>
+      <h2 className="text-2xl font-black uppercase tracking-[0.1em] text-white">{t.aboutTitle}</h2>
       <p className="mt-4 max-w-3xl text-base leading-7 text-[#c4c9ac]">
-        This app uses your device camera and pose detection to count exercise repetitions locally in the browser.
-        Choose an exercise, start the camera, and perform reps while the app tracks your session and total progress.
+        {t.aboutDescription}
       </p>
       <p className="mt-4 max-w-3xl text-sm leading-6 text-[#8e9379]">
-        Camera frames and rep data stay on this device. The overview and CSV export are built from local browser
-        storage.
+        {t.aboutPrivacy}
       </p>
     </article>
   );
@@ -884,7 +889,7 @@ function SettingsRow({ icon, label, children }: { icon: ReactNode; label: string
   );
 }
 
-function ToggleButton({ enabled, onChange }: { enabled: boolean; onChange: (enabled: boolean) => void }) {
+function ToggleButton({ t, enabled, onChange }: { t: Messages; enabled: boolean; onChange: (enabled: boolean) => void }) {
   return (
     <button
       type="button"
@@ -896,22 +901,22 @@ function ToggleButton({ enabled, onChange }: { enabled: boolean; onChange: (enab
       onClick={() => onChange(!enabled)}
       aria-pressed={enabled}
     >
-      {enabled ? "On" : "Off"}
+      {enabled ? t.on : t.off}
       <span className={`h-3 w-3 rounded-sm ${enabled ? "bg-[#161e00]" : "bg-[#8e9379]"}`} />
     </button>
   );
 }
 
-function sectionTitle(section: AppSection): string {
+function sectionTitle(section: AppSection, t: Messages): string {
   switch (section) {
     case "overview":
-      return "Overview";
+      return t.overview;
     case "settings":
-      return "Settings";
+      return t.settings;
     case "about":
-      return "About";
+      return t.about;
     case "main":
-      return "Main";
+      return t.main;
   }
 }
 

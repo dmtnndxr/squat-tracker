@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export function useCamera() {
+export function useCamera(unableToStartCamera: string) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const objectUrlRef = useRef<string | null>(null);
@@ -63,10 +63,10 @@ export function useCamera() {
 
       setIsCameraActive(true);
     } catch (error) {
-      setCameraError(error instanceof Error ? error.message : "Unable to start camera");
+      setCameraError(error instanceof Error ? error.message : unableToStartCamera);
       setIsCameraActive(false);
     }
-  }, [clearVideoFile]);
+  }, [clearVideoFile, unableToStartCamera]);
 
   const loadVideoFile = useCallback(
     async (file: File) => {

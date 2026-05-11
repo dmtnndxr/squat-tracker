@@ -19,6 +19,9 @@ type UsePoseDetectionArgs = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   exercise: ExerciseType;
   isVideoSourceActive: boolean;
+  messages: {
+    unableToLoadPoseModel: string;
+  };
   onPose: (exercise: ExerciseType, evaluation: PoseEvaluation) => void;
 };
 
@@ -27,6 +30,7 @@ export function usePoseDetection({
   canvasRef,
   exercise,
   isVideoSourceActive,
+  messages,
   onPose,
 }: UsePoseDetectionArgs) {
   const poseLandmarkerRef = useRef<PoseLandmarker | null>(null);
@@ -34,6 +38,7 @@ export function usePoseDetection({
   const angleWindowRef = useRef<number[]>([]);
   const angleRangeRef = useRef<AngleRange>({ min: null, max: null });
   const onPoseRef = useRef(onPose);
+  const messagesRef = useRef(messages);
   const exerciseRef = useRef(exercise);
   const [isModelReady, setIsModelReady] = useState(false);
   const [poseError, setPoseError] = useState<string | null>(null);
@@ -50,6 +55,10 @@ export function usePoseDetection({
   useEffect(() => {
     onPoseRef.current = onPose;
   }, [onPose]);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   useEffect(() => {
     exerciseRef.current = exercise;
@@ -82,7 +91,7 @@ export function usePoseDetection({
         poseLandmarkerRef.current = poseLandmarker;
         setIsModelReady(true);
       } catch (error) {
-        setPoseError(error instanceof Error ? error.message : "Unable to load pose model");
+        setPoseError(error instanceof Error ? error.message : messagesRef.current.unableToLoadPoseModel);
       }
     }
 
