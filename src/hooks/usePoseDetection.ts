@@ -7,6 +7,7 @@ import {
 } from "@mediapipe/tasks-vision";
 import type { AngleRange, ExerciseType, Point, PoseEvaluation, PoseThresholds } from "../types/exercise";
 import { evaluateExercisePose, getAdaptiveThresholds, getDefaultThresholds, getExerciseAngle } from "../utils/landmarks";
+import { startVisibilityAwareFrameLoop, type FrameLoop } from "../utils/frameScheduler";
 import { appendWindowValue, averageWindow } from "../utils/smoothing";
 
 const MODEL_URL =
@@ -34,7 +35,7 @@ export function usePoseDetection({
   onPose,
 }: UsePoseDetectionArgs) {
   const poseLandmarkerRef = useRef<PoseLandmarker | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
+  const frameLoopRef = useRef<FrameLoop | null>(null);
   const angleWindowRef = useRef<number[]>([]);
   const angleRangeRef = useRef<AngleRange>({ min: null, max: null });
   const onPoseRef = useRef(onPose);
@@ -174,7 +175,6 @@ export function usePoseDetection({
       const poseLandmarker = poseLandmarkerRef.current;
 
       if (!video || !poseLandmarker || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-        animationFrameRef.current = requestAnimationFrame(detectFrame);
         return;
       }
 
@@ -193,7 +193,6 @@ export function usePoseDetection({
         };
         setLatestEvaluation(evaluation);
         onPoseRef.current(exerciseRef.current, evaluation);
-        animationFrameRef.current = requestAnimationFrame(detectFrame);
         return;
       }
 
@@ -231,16 +230,13 @@ export function usePoseDetection({
       setActiveThresholds(thresholds);
       setLatestEvaluation(evaluation);
       onPoseRef.current(exerciseRef.current, evaluation);
-
-      animationFrameRef.current = requestAnimationFrame(detectFrame);
     }
 
-    animationFrameRef.current = requestAnimationFrame(detectFrame);
+    frameLoopRef.current = startVisibilityAwareFrameLoop(detectFrame);
 
     return () => {
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      frameLoopRef.current?.cancel();
+      frameLoopRef.current = null;
     };
   }, [clearCanvas, drawLandmarks, isModelReady, isVideoSourceActive, videoRef]);
 
