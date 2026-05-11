@@ -1,4 +1,5 @@
-import { FileVideo, RotateCcw, Trash2, Upload } from "lucide-react";
+import { ChevronDown, ChevronUp, FileVideo, GripHorizontal, RotateCcw, Trash2, Upload } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import type { SessionCounts } from "../hooks/useExerciseCounter";
 import type { Messages } from "../i18n/translations";
 import type { AngleRange, ExerciseTotals, ExerciseType, PoseState, PoseThresholds } from "../types/exercise";
@@ -64,93 +65,185 @@ export function CounterPanel({
   onLoadVideoFile,
   onClearVideoFile,
 }: CounterPanelProps) {
+  const panelRef = useRef<HTMLElement | null>(null);
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const activeSessionCount = selectedExercise === "pushup" ? sessionCounts.pushups : sessionCounts.squats;
   const sourceLabel = isCameraActive ? t.cameraOn : isVideoFileLoaded ? "Test video" : t.noSource;
+  const panelStatus = displayStatus(isPersonDetected, status);
+
+  const movePanel = useCallback((clientX: number, clientY: number) => {
+    const panel = panelRef.current;
+
+    if (!panel) {
+      return;
+    }
+
+    const rect = panel.getBoundingClientRect();
+    const margin = 8;
+    const maxX = Math.max(margin, window.innerWidth - rect.width - margin);
+    const maxY = Math.max(margin, window.innerHeight - rect.height - margin);
+
+    setPosition({
+      x: Math.min(Math.max(clientX - dragOffsetRef.current.x, margin), maxX),
+      y: Math.min(Math.max(clientY - dragOffsetRef.current.y, margin), maxY),
+    });
+  }, []);
+
+  const handlePointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.button !== 0) {
+        return;
+      }
+
+      const panel = panelRef.current;
+
+      if (!panel) {
+        return;
+      }
+
+      const rect = panel.getBoundingClientRect();
+      dragOffsetRef.current = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+      event.currentTarget.setPointerCapture(event.pointerId);
+      movePanel(event.clientX, event.clientY);
+    },
+    [movePanel],
+  );
+
+  const handlePointerMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+        return;
+      }
+
+      movePanel(event.clientX, event.clientY);
+    },
+    [movePanel],
+  );
+
+  const handlePointerUp = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }, []);
 
   return (
-    <aside className="pointer-events-auto absolute bottom-36 left-4 z-30 max-h-[42dvh] w-[min(24rem,calc(100vw-2rem))] resize overflow-auto rounded-md border border-[#444933]/80 bg-[#131314]/90 p-4 text-xs text-[#c4c9ac] shadow-2xl backdrop-blur-xl sm:bottom-auto sm:top-24">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#00dbe9]">Debug panel</p>
-          <h2 className="mt-1 text-lg font-black uppercase tracking-[0.08em] text-white">
-            {displayStatus(isPersonDetected, status)}
-          </h2>
+    <aside
+      ref={panelRef}
+      className={`pointer-events-auto fixed z-30 w-[min(24rem,calc(100vw-2rem))] rounded-md border border-[#444933]/80 bg-[#131314]/90 text-xs text-[#c4c9ac] shadow-2xl backdrop-blur-xl ${
+        position ? "" : "bottom-4 right-4"
+      }`}
+      style={position ? { left: position.x, top: position.y } : undefined}
+    >
+      <div
+        className="flex touch-none select-none items-center justify-between gap-3 border-b border-[#444933]/70 p-3"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#00dbe9]">
+            <GripHorizontal size={14} aria-hidden="true" />
+            Debug panel
+          </p>
+          <h2 className="mt-1 truncate text-base font-black uppercase tracking-[0.08em] text-white">{panelStatus}</h2>
         </div>
-        <span className="rounded-sm border border-[#444933] px-2 py-1 text-[10px] uppercase text-[#c3f400]">
-          {sourceLabel}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="rounded-sm border border-[#444933] px-2 py-1 text-[10px] uppercase text-[#c3f400]">
+            {sourceLabel}
+          </span>
+          <button
+            type="button"
+            className="grid h-8 w-8 place-items-center rounded-sm bg-white/5 text-white transition hover:bg-white/10"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={() => setIsCollapsed((current) => !current)}
+            aria-label={isCollapsed ? "Expand debug panel" : "Collapse debug panel"}
+            aria-expanded={!isCollapsed}
+          >
+            {isCollapsed ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
+          </button>
+        </div>
       </div>
 
-      <dl className="grid gap-2">
-        <DebugRow label="Model" value={isModelReady ? "Ready" : "Loading"} />
-        <DebugRow label="Session" value={`${activeSessionCount} reps`} />
-        <DebugRow label="Push-ups total" value={String(totals.pushups)} />
-        <DebugRow label="Squats total" value={String(totals.squats)} />
-        <DebugRow label="Position" value={String(currentPoseState)} />
-        <DebugRow label="Raw status" value={status || t.unknown} />
-        <DebugRow label="Angle" value={angle === null ? t.unknown : `${Math.round(angle)} deg`} />
-        <DebugRow
-          label="Angle range"
-          value={
-            angleRange.min === null || angleRange.max === null
-              ? t.unknown
-              : `${Math.round(angleRange.min)}-${Math.round(angleRange.max)} deg`
-          }
-        />
-        <DebugRow
-          label="Thresholds"
-          value={`${Math.round(activeThresholds.down)}/${Math.round(activeThresholds.up)} deg ${activeThresholds.source}`}
-        />
-      </dl>
+      {!isCollapsed && (
+        <div className="max-h-[42dvh] resize overflow-auto p-4">
+          <dl className="grid gap-2">
+            <DebugRow label="Model" value={isModelReady ? "Ready" : "Loading"} />
+            <DebugRow label="Session" value={`${activeSessionCount} reps`} />
+            <DebugRow label="Push-ups total" value={String(totals.pushups)} />
+            <DebugRow label="Squats total" value={String(totals.squats)} />
+            <DebugRow label="Position" value={String(currentPoseState)} />
+            <DebugRow label="Raw status" value={status || t.unknown} />
+            <DebugRow label="Angle" value={angle === null ? t.unknown : `${Math.round(angle)} deg`} />
+            <DebugRow
+              label="Angle range"
+              value={
+                angleRange.min === null || angleRange.max === null
+                  ? t.unknown
+                  : `${Math.round(angleRange.min)}-${Math.round(angleRange.max)} deg`
+              }
+            />
+            <DebugRow
+              label="Thresholds"
+              value={`${Math.round(activeThresholds.down)}/${Math.round(activeThresholds.up)} deg ${activeThresholds.source}`}
+            />
+          </dl>
 
-      {isVideoFileLoaded && videoFileName && (
-        <div className="mt-4 flex items-center justify-between gap-2 rounded-sm bg-white/5 px-3 py-2">
-          <span className="inline-flex min-w-0 items-center gap-2">
-            <FileVideo size={15} aria-hidden="true" />
-            <span className="truncate">{videoFileName}</span>
-          </span>
-          <button type="button" className="text-[#c3f400] hover:text-white" onClick={onClearVideoFile}>
-            Clear
-          </button>
+          {isVideoFileLoaded && videoFileName && (
+            <div className="mt-4 flex items-center justify-between gap-2 rounded-sm bg-white/5 px-3 py-2">
+              <span className="inline-flex min-w-0 items-center gap-2">
+                <FileVideo size={15} aria-hidden="true" />
+                <span className="truncate">{videoFileName}</span>
+              </span>
+              <button type="button" className="text-[#c3f400] hover:text-white" onClick={onClearVideoFile}>
+                Clear
+              </button>
+            </div>
+          )}
+
+          <div className="mt-4 grid gap-2">
+            <label className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-[#c3f400] px-3 text-xs font-black uppercase tracking-[0.08em] text-[#c3f400] transition hover:bg-[#c3f400] hover:text-[#161e00]">
+              <Upload size={15} aria-hidden="true" />
+              Load test video
+              <input
+                className="hidden"
+                type="file"
+                accept="video/*"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) {
+                    onLoadVideoFile(file);
+                  }
+                  event.target.value = "";
+                }}
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-white/5 px-3 font-bold text-white hover:bg-white/10"
+                onClick={onResetSession}
+              >
+                <RotateCcw size={15} aria-hidden="true" />
+                Session
+              </button>
+              <button
+                type="button"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#ca0a0f]/20 px-3 font-bold text-[#ff7f83] hover:bg-[#ca0a0f]/30"
+                onClick={onResetTotals}
+              >
+                <Trash2 size={15} aria-hidden="true" />
+                Totals
+              </button>
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="mt-4 grid gap-2">
-        <label className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-[#c3f400] px-3 text-xs font-black uppercase tracking-[0.08em] text-[#c3f400] transition hover:bg-[#c3f400] hover:text-[#161e00]">
-          <Upload size={15} aria-hidden="true" />
-          Load test video
-          <input
-            className="hidden"
-            type="file"
-            accept="video/*"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) {
-                onLoadVideoFile(file);
-              }
-              event.target.value = "";
-            }}
-          />
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-white/5 px-3 font-bold text-white hover:bg-white/10"
-            onClick={onResetSession}
-          >
-            <RotateCcw size={15} aria-hidden="true" />
-            Session
-          </button>
-          <button
-            type="button"
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#ca0a0f]/20 px-3 font-bold text-[#ff7f83] hover:bg-[#ca0a0f]/30"
-            onClick={onResetTotals}
-          >
-            <Trash2 size={15} aria-hidden="true" />
-            Totals
-          </button>
-        </div>
-      </div>
     </aside>
   );
 }
