@@ -52,6 +52,10 @@ const DEFAULT_SETTINGS: AppSettings = {
   soundEnabled: true,
 };
 
+function confirmDestructiveAction(message: string): boolean {
+  return window.confirm(message);
+}
+
 function loadSettings(): AppSettings {
   const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
 
@@ -263,9 +267,37 @@ function App() {
   );
 
   const handleClearVideoFile = useCallback(() => {
+    if (!confirmDestructiveAction("Clear the loaded test video?")) {
+      return;
+    }
+
     clearVideoFile();
     resetTransition();
   }, [clearVideoFile, resetTransition]);
+
+  const handleResetSession = useCallback(() => {
+    if (!confirmDestructiveAction("Reset the current session counts?")) {
+      return;
+    }
+
+    resetSession();
+  }, [resetSession]);
+
+  const handleResetTotals = useCallback(() => {
+    if (!confirmDestructiveAction("Delete all locally stored exercise totals?")) {
+      return;
+    }
+
+    resetLocalTotals();
+  }, [resetLocalTotals]);
+
+  const handleResetHistory = useCallback(() => {
+    if (!confirmDestructiveAction("Delete all locally stored session history?")) {
+      return;
+    }
+
+    resetLocalHistory();
+  }, [resetLocalHistory]);
 
   const handleNavigate = useCallback((section: AppSection) => {
     setActiveSection(section);
@@ -316,8 +348,8 @@ function App() {
           onSelectExercise={handleSelectExercise}
           onLoadVideoFile={handleLoadVideoFile}
           onClearVideoFile={handleClearVideoFile}
-          onResetSession={resetSession}
-          onResetTotals={resetLocalTotals}
+          onResetSession={handleResetSession}
+          onResetTotals={handleResetTotals}
         />
       ) : (
         <ContentScreen title={sectionTitle(activeSection)} onBack={() => setActiveSection("main")}>
@@ -330,7 +362,7 @@ function App() {
               expandedDays={expandedDays}
               onToggleDay={toggleDay}
               onExportCsv={() => exportCsv(t.csvFileName)}
-              onResetHistory={resetLocalHistory}
+              onResetHistory={handleResetHistory}
             />
           )}
 
