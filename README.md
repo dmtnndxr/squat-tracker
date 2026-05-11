@@ -1,32 +1,32 @@
 # Squat Tracker
 
-Локальный браузерный счетчик упражнений. Приложение использует камеру или загруженное тестовое видео, распознает позу через MediaPipe Tasks Vision и считает повторения без отправки видео или истории на сервер.
+A local browser-based exercise counter. The app uses a live camera feed or an uploaded test video, detects body pose with MediaPipe Tasks Vision, and counts repetitions without sending video or history to a server.
 
-Проект в активной разработке: интерфейс и логика подсчета еще уточняются, но базовый сценарий уже работает.
+The project is under active development: the interface and counting logic are still being refined, but the core workflow already works.
 
-## Возможности
+## Features
 
-- Подсчет приседаний и отжиманий.
-- Live-камера, тестовое видео и canvas-оверлей с pose landmarks.
-- Счетчик текущей сессии, локальные totals и история повторений.
-- Группировка истории по дням и сессиям, экспорт в CSV.
-- Настройки языка EN/RU, звука и debug-панели.
-- Подтверждение перед сбросом прогресса, totals, сессии или тестового видео.
+- Counts squats and push-ups.
+- Supports a live camera feed, test video upload, and a canvas overlay with pose landmarks.
+- Tracks the current session count, local totals, and repetition history.
+- Groups history by day and session, with CSV export.
+- Includes EN/RU language, sound, and debug panel settings.
+- Asks for confirmation before resetting progress, totals, the session, or a test video.
 
-## Стек
+## Stack
 
 React 19, TypeScript, Vite, Tailwind CSS 4, MediaPipe Tasks Vision, Vitest, lucide-react.
 
-## Структура
+## Structure
 
-- `src/App.tsx` - основной shell, навигация Main/Overview/Settings/About, настройки, история, звук и подтверждения.
-- `src/components/` - меню, превью камеры/видео, переключатель упражнения и debug-панель.
-- `src/hooks/` - камера, pose detection, счетчик повторений, totals, история и локаль.
-- `src/storage/` - localStorage и CSV для истории.
-- `src/utils/` - углы, landmarks, adaptive thresholds, smoothing, frame loop и counter transition.
-- `src/i18n/` - английские и русские тексты.
-- `public/squat.png`, `public/pushup.png` - плейсхолдеры экрана до запуска источника видео.
+- `src/App.tsx` - main shell, Main/Overview/Settings/About navigation, settings, history, sound, and confirmations.
+- `src/components/` - menu, camera/video preview, exercise selector, and debug panel.
+- `src/hooks/` - camera, pose detection, repetition counter, totals, history, and locale.
+- `src/storage/` - localStorage helpers and history CSV export.
+- `src/utils/` - angles, landmarks, adaptive thresholds, smoothing, frame loop, and counter transitions.
+- `src/i18n/` - English and Russian UI copy.
+- `public/squat.png`, `public/pushup.png` - placeholder images shown before a video source starts.
 
-## Данные
+## Data
 
-Все пользовательские данные хранятся в браузере: totals, rep history, выбранный язык, упражнение, звук и состояние debug-панели. Камера и pose detection обрабатываются локально.
+All user data is stored in the browser: totals, repetition history, selected language, exercise, sound setting, and debug panel state. Camera input and pose detection are processed locally.
