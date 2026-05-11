@@ -319,7 +319,6 @@ function App() {
   const activeSessionCount = selectedExercise === "pushup" ? sessionCounts.pushups : sessionCounts.squats;
   const selectedExerciseLabel = selectedExercise === "pushup" ? t.pushups : t.squats;
   const selectedExerciseTotal = exerciseTotal(totals, selectedExercise);
-  const totalReps = totals.pushups + totals.squats;
   const historyDays = useMemo(() => buildHistoryDays(history, locale), [history, locale]);
   const selectedExerciseText = formatExerciseName(selectedExercise, t);
   const firstRepExerciseText = formatFirstRepExerciseName(selectedExercise, locale);
@@ -383,13 +382,15 @@ function App() {
     resetLocalTotals();
   }, [resetLocalTotals, t.confirmResetTotals]);
 
-  const handleResetHistory = useCallback(() => {
-    if (!confirmDestructiveAction(t.confirmResetHistory)) {
+  const handleResetProgress = useCallback(() => {
+    if (!confirmDestructiveAction(t.confirmResetProgress)) {
       return;
     }
 
+    resetSession();
+    resetLocalTotals();
     resetLocalHistory();
-  }, [resetLocalHistory, t.confirmResetHistory]);
+  }, [resetLocalHistory, resetLocalTotals, resetSession, t.confirmResetProgress]);
 
   const handleSoundChange = useCallback(
     (soundEnabled: boolean) => {
@@ -470,12 +471,11 @@ function App() {
               t={t}
               locale={locale}
               totals={totals}
-              totalReps={totalReps}
               historyDays={historyDays}
               expandedDays={expandedDays}
               onToggleDay={toggleDay}
               onExportCsv={() => exportCsv(t.csvFileName)}
-              onResetHistory={handleResetHistory}
+              onResetProgress={handleResetProgress}
             />
           )}
 
@@ -744,27 +744,26 @@ function OverviewScreen({
   t,
   locale,
   totals,
-  totalReps,
   historyDays,
   expandedDays,
   onToggleDay,
   onExportCsv,
-  onResetHistory,
+  onResetProgress,
 }: {
   t: Messages;
   locale: Locale;
   totals: ExerciseTotals;
-  totalReps: number;
   historyDays: HistoryDay[];
   expandedDays: Set<string>;
   onToggleDay: (dayKey: string) => void;
   onExportCsv: () => void;
-  onResetHistory: () => void;
+  onResetProgress: () => void;
 }) {
+  const hasProgress = totals.pushups > 0 || totals.squats > 0 || historyDays.length > 0;
+
   return (
     <div className="grid gap-6">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label={t.totalReps} value={totalReps} />
+      <div className="grid gap-3 sm:grid-cols-2">
         <StatCard label={t.squats} value={totals.squats} />
         <StatCard label={t.pushups} value={totals.pushups} />
       </div>
@@ -786,11 +785,11 @@ function OverviewScreen({
           <button
             type="button"
             className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[#444933] px-4 text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac] transition hover:border-white hover:text-white"
-            onClick={onResetHistory}
-            disabled={historyDays.length === 0}
+            onClick={onResetProgress}
+            disabled={!hasProgress}
           >
             <RotateCcw size={17} aria-hidden="true" />
-            {t.reset}
+            {t.resetProgress}
           </button>
         </div>
       </div>

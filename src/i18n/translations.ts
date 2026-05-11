@@ -18,6 +18,7 @@ export type Messages = {
   resetSession: string;
   resetTotals: string;
   resetHistory: string;
+  resetProgress: string;
   reset: string;
   exportCsv: string;
   menu: string;
@@ -90,6 +91,7 @@ export type Messages = {
   confirmResetSession: string;
   confirmResetTotals: string;
   confirmResetHistory: string;
+  confirmResetProgress: string;
   unableToStartCamera: string;
   unableToLoadPoseModel: string;
   aboutTitle: string;
@@ -119,6 +121,7 @@ export const messages: Record<Locale, Messages> = {
     resetSession: "Reset session",
     resetTotals: "Reset totals",
     resetHistory: "Reset history",
+    resetProgress: "Reset progress",
     reset: "Reset",
     exportCsv: "Export CSV",
     menu: "Menu",
@@ -159,7 +162,7 @@ export const messages: Record<Locale, Messages> = {
     reps: "reps",
     noReps: "0 reps",
     activityByDay: "Activity by day",
-    sessionsGrouped: "Sessions are grouped from locally stored rep events.",
+    sessionsGrouped: "Activity is grouped by workout sessions.",
     noSessionHistory: "No session history yet. Start the camera and complete reps to fill this overview.",
     debugPanel: "Debug panel",
     expandDebugPanel: "Expand debug panel",
@@ -191,6 +194,7 @@ export const messages: Record<Locale, Messages> = {
     confirmResetSession: "Reset the current session counts?",
     confirmResetTotals: "Delete all locally stored exercise totals?",
     confirmResetHistory: "Delete all locally stored session history?",
+    confirmResetProgress: "Delete all exercise totals and session history?",
     unableToStartCamera: "Unable to start camera",
     unableToLoadPoseModel: "Unable to load pose model",
     aboutTitle: "Local exercise counter",
@@ -221,6 +225,7 @@ export const messages: Record<Locale, Messages> = {
     resetSession: "Сбросить подход",
     resetTotals: "Сбросить итоги",
     resetHistory: "Сбросить историю",
+    resetProgress: "Сбросить прогресс",
     reset: "Сбросить",
     exportCsv: "Экспорт CSV",
     menu: "Меню",
@@ -261,7 +266,7 @@ export const messages: Record<Locale, Messages> = {
     reps: "повт.",
     noReps: "0 повт.",
     activityByDay: "Активность по дням",
-    sessionsGrouped: "Подходы сгруппированы из локально сохраненных повторов.",
+    sessionsGrouped: "Активность сгруппирована по тренировочным подходам.",
     noSessionHistory: "Истории подходов пока нет. Включите камеру и выполните повторы, чтобы заполнить обзор.",
     debugPanel: "Панель отладки",
     expandDebugPanel: "Развернуть панель отладки",
@@ -293,6 +298,7 @@ export const messages: Record<Locale, Messages> = {
     confirmResetSession: "Сбросить счетчики текущего подхода?",
     confirmResetTotals: "Удалить все локально сохраненные итоги упражнений?",
     confirmResetHistory: "Удалить всю локально сохраненную историю подходов?",
+    confirmResetProgress: "Удалить все итоги упражнений и историю подходов?",
     unableToStartCamera: "Не удалось включить камеру",
     unableToLoadPoseModel: "Не удалось загрузить модель позы",
     aboutTitle: "Локальный счетчик упражнений",
