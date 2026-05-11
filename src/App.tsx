@@ -56,6 +56,25 @@ function confirmDestructiveAction(message: string): boolean {
   return window.confirm(message);
 }
 
+function createRepBeep(audioContext: AudioContext): void {
+  const now = audioContext.currentTime;
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(880, now);
+  oscillator.frequency.exponentialRampToValueAtTime(1174, now + 0.08);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.16, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start(now);
+  oscillator.stop(now + 0.13);
+}
+
 function loadSettings(): AppSettings {
   const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
 
@@ -177,6 +196,7 @@ function buildHistoryDays(history: ReturnType<typeof useRepHistory>["history"], 
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<ExerciseType>("squat");
   const [activeSection, setActiveSection] = useState<AppSection>("main");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -198,12 +218,37 @@ function App() {
   const { totals, incrementTotal, resetLocalTotals } = useLocalExerciseTotals();
   const { history, recordRep, resetLocalHistory, exportCsv, startNewSession } = useRepHistory();
 
+  const ensureAudioContext = useCallback(() => {
+    audioContextRef.current ??= new AudioContext();
+
+    if (audioContextRef.current.state === "suspended") {
+      void audioContextRef.current.resume();
+    }
+
+    return audioContextRef.current;
+  }, []);
+
+  const playRepBeep = useCallback(() => {
+    const audioContext = ensureAudioContext();
+
+    if (audioContext.state === "closed") {
+      audioContextRef.current = null;
+      return;
+    }
+
+    createRepBeep(audioContext);
+  }, [ensureAudioContext]);
+
   const handleRepCounted = useCallback(
     (exercise: ExerciseType, countKey: "pushups" | "squats") => {
       incrementTotal(countKey);
       recordRep(exercise);
+
+      if (settings.soundEnabled) {
+        playRepBeep();
+      }
     },
-    [incrementTotal, recordRep],
+    [incrementTotal, playRepBeep, recordRep, settings.soundEnabled],
   );
   const { sessionCounts, currentPoseState, processPose, resetSession, resetTransition } =
     useExerciseCounter(handleRepCounted);
@@ -218,6 +263,14 @@ function App() {
   useEffect(() => {
     localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
   }, [settings]);
+
+  useEffect(
+    () => () => {
+      void audioContextRef.current?.close();
+      audioContextRef.current = null;
+    },
+    [],
+  );
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -253,9 +306,13 @@ function App() {
       return;
     }
 
+    if (settings.soundEnabled) {
+      ensureAudioContext();
+    }
+
     startNewSession();
     void startCamera();
-  }, [isCameraActive, resetTransition, startCamera, startNewSession, stopCamera]);
+  }, [ensureAudioContext, isCameraActive, resetTransition, settings.soundEnabled, startCamera, startNewSession, stopCamera]);
 
   const handleLoadVideoFile = useCallback(
     (file: File) => {
@@ -298,6 +355,17 @@ function App() {
 
     resetLocalHistory();
   }, [resetLocalHistory]);
+
+  const handleSoundChange = useCallback(
+    (soundEnabled: boolean) => {
+      setSettings((current) => ({ ...current, soundEnabled }));
+
+      if (soundEnabled) {
+        ensureAudioContext();
+      }
+    },
+    [ensureAudioContext],
+  );
 
   const handleNavigate = useCallback((section: AppSection) => {
     setActiveSection(section);
@@ -373,7 +441,7 @@ function App() {
               soundEnabled={settings.soundEnabled}
               onLocaleChange={setLocale}
               onDebugChange={(debugEnabled) => setSettings((current) => ({ ...current, debugEnabled }))}
-              onSoundChange={(soundEnabled) => setSettings((current) => ({ ...current, soundEnabled }))}
+              onSoundChange={handleSoundChange}
             />
           )}
 
