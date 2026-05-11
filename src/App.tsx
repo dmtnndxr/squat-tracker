@@ -601,15 +601,20 @@ function MainScreen({
 
       <header className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex items-start justify-between p-4 sm:p-6">
         <div className="pointer-events-auto relative">
-          <button
-            type="button"
-            className="grid h-11 w-11 place-items-center rounded-md border border-[#444933]/70 bg-[#131314]/75 text-white shadow-2xl backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400]"
-            onClick={onToggleMenu}
-            aria-label={t.menu}
-            aria-expanded={isMenuOpen}
-          >
-            {isMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="grid h-11 w-11 place-items-center rounded-md border border-[#444933]/70 bg-[#131314]/75 text-white shadow-2xl backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400]"
+              onClick={onToggleMenu}
+              aria-label={t.menu}
+              aria-expanded={isMenuOpen}
+            >
+              {isMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+            </button>
+            <p className="rounded-md border border-[#444933]/60 bg-[#131314]/65 px-3 py-2 text-sm font-black uppercase tracking-[0.12em] text-white shadow-2xl backdrop-blur">
+              {t.appTitle}
+            </p>
+          </div>
           {isMenuOpen && <AppMenu t={t} onNavigate={onNavigate} />}
         </div>
 

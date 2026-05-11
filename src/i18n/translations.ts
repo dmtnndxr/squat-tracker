@@ -102,7 +102,7 @@ export type Messages = {
 
 export const messages: Record<Locale, Messages> = {
   en: {
-    appTitle: "Exercise Counter",
+    appTitle: "Rep Tracker",
     appSubtitle: "Browser workout counter",
     pushups: "Push-ups",
     squats: "Squats",
@@ -204,7 +204,7 @@ export const messages: Record<Locale, Messages> = {
       "A private browser exercise counter that uses your camera to count push-ups and squats locally on your device.",
   },
   ru: {
-    appTitle: "Счетчик упражнений",
+    appTitle: "Счет повторений",
     appSubtitle: "Браузерный счетчик тренировки",
     pushups: "Отжимания",
     squats: "Приседания",
