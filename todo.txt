@@ -1,8 +1,8 @@
 - fix and test rep detection.
 ?- why when on another tab - count stops?
-- deploy to github pages if possible
 - fix debug rectangle
 - fix settings swithers rectangles
+- Update About: Data is saved only in your browser and may be deleted by the browser without warning. We recommend regularly exporting or backing up your data.
 - gamification
 - https://apps.apple.com/gb/app/dundun-squat-counter/id1348285355
 - what about battery saving - hide video?
