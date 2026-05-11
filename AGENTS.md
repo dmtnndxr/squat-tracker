@@ -1,10 +1,10 @@
 # Agent Instructions
 
-This repository is a browser fitness tracker built with React, TypeScript, Vite, Tailwind CSS, and MediaPipe Tasks Vision.
+This repository is a browser exercise counter built with React, TypeScript, Vite, Tailwind CSS, and MediaPipe Tasks Vision. It runs pose detection locally in the browser and currently tracks squats and push-ups.
 
 ## Working Principles
 
-- Preserve the core app behavior: camera access, pose landmark detection, repetition counting, local totals, local history, debug data, and exercise modes.
+- Preserve the core app behavior: camera/test-video input, pose landmark detection, adaptive angle evaluation, repetition counting, local totals, local history, debug data, sound feedback, locale settings, and exercise modes.
 - Do not replace working pose/counting logic while doing visual work.
 - Prefer small, focused React components and hooks.
 - Prefer existing utilities, storage helpers, and hooks over adding parallel implementations.
@@ -30,33 +30,42 @@ npm run dev
 
 ## Important Files
 
-- `src/App.tsx` - main app shell, screen routing, settings, overview grouping, confirmations, and high-level state.
-- `src/components/CameraView.tsx` - camera/test-video rendering and placeholder.
-- `src/components/CounterPanel.tsx` - debug panel.
-- `src/components/ExerciseSelector.tsx` - exercise tabs.
+- `src/App.tsx` - main app shell, screen routing, persisted UI settings, overview grouping, confirmations, audio feedback, and high-level state wiring.
+- `src/components/AppMenu.tsx` - top-left menu for Overview, Settings, and About.
+- `src/components/CameraView.tsx` - live camera/test-video rendering, canvas overlay, errors, and exercise placeholder images.
+- `src/components/CounterPanel.tsx` - optional debug panel with pose status, thresholds, totals, reset actions, and test-video loading.
+- `src/components/ExerciseSelector.tsx` - squat/push-up selector.
 - `src/hooks/useCamera.ts` - camera and video source lifecycle.
 - `src/hooks/usePoseDetection.ts` - MediaPipe pose detector loop.
 - `src/hooks/useExerciseCounter.ts` - repetition counting state machine integration.
 - `src/hooks/useRepHistory.ts` - local rep history and session IDs.
 - `src/hooks/useLocalExerciseTotals.ts` - local total counters.
-- `src/storage/` - localStorage helpers and CSV conversion.
-- `src/utils/` - landmark, angle, smoothing, and counter utilities.
-- `src/i18n/` - language state and translations.
+- `src/hooks/useLocale.ts` - persisted language state.
+- `src/storage/` - localStorage helpers and CSV conversion for totals/history.
+- `src/utils/` - landmark selection, angle evaluation, adaptive thresholds, smoothing, frame scheduling, IDs, and counter transitions.
+- `src/types/exercise.ts` - shared exercise, pose, threshold, and total types.
+- `src/i18n/` - locale persistence and English/Russian translations.
+- `public/squat.png`, `public/pushup.png` - exercise placeholder images used before a video source is active.
 
 ## Data and Safety Rules
 
-- Browser storage is the source for totals, history, locale, and UI settings.
+- Browser storage is the source for totals, rep history, locale, selected exercise, debug panel state/position, and sound settings.
 - Any action that deletes, clears, or resets data must ask for confirmation with `window.confirm` or an equivalent browser alert/confirm flow.
 - This includes debug-only reset and clear actions.
 - Do not silently clear totals, history, loaded test videos, or session counters.
 - Keep session grouping compatible with the existing `sessionId` model.
+- Camera frames, test videos, pose landmarks, totals, and history must stay local unless the user explicitly requests a different architecture.
 
 ## UI Rules
 
 - The app has four sections: Main, Overview, Settings, About.
-- The Main screen is centered around the live camera preview or placeholder visual.
+- The Main screen is centered around the live camera/test-video preview or exercise placeholder visual.
 - The burger menu in the top-left navigates to Overview, Settings, and About.
 - Squats should remain selected by default.
+- Camera activation starts a new session; stopping the camera resets only the current session counter.
+- Test-video loading is available from the preview/debug flow and starts a new local session.
+- Overview shows local totals plus history grouped by day and session, with CSV export and reset-progress confirmation.
+- Settings controls language, sound feedback, and debug panel visibility.
 - The debug panel is optional, settings-controlled, collapsible, movable, and bottom-right by default.
 - Use compact, rectangular controls rather than pill-heavy styling.
 - Keep the existing dark/lime/cyan palette unless the task explicitly asks for a broader redesign.
@@ -76,4 +85,3 @@ npm test
 ```
 
 For visual-only Tailwind class adjustments, `npm run build` is the minimum check.
-
