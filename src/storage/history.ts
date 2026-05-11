@@ -1,4 +1,5 @@
 import type { ExerciseType } from "../types/exercise";
+import { createId } from "../utils/id";
 
 export const HISTORY_STORAGE_KEY = "exercise_counter_rep_history_v1";
 
@@ -83,7 +84,7 @@ export function createHistoryEntry(exercise: ExerciseType, sessionId: string): R
   const timestamp = new Date().toISOString();
 
   return {
-    id: `${timestamp}-${exercise}-${crypto.randomUUID()}`,
+    id: `${timestamp}-${exercise}-${createId()}`,
     exercise,
     timestamp,
     sessionId,

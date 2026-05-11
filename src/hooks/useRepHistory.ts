@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ExerciseType } from "../types/exercise";
+import { createId } from "../utils/id";
 import {
   appendHistoryEntry,
   createHistoryEntry,
@@ -11,7 +12,7 @@ import {
 
 export function useRepHistory() {
   const [history, setHistory] = useState<RepHistoryEntry[]>([]);
-  const sessionIdRef = useRef(crypto.randomUUID());
+  const sessionIdRef = useRef(createId());
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -27,7 +28,7 @@ export function useRepHistory() {
   }, []);
 
   const startNewSession = useCallback(() => {
-    sessionIdRef.current = crypto.randomUUID();
+    sessionIdRef.current = createId();
   }, []);
 
   const exportCsv = useCallback((fileName: string) => {
