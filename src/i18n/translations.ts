@@ -32,6 +32,12 @@ export type Messages = {
   russian: string;
   session: string;
   currentSession: string;
+  allTimeTotal: string;
+  allTimeShort: string;
+  noRepsYet: string;
+  firstRepPrompt: string;
+  continueWorkoutPrompt: string;
+  addMoreRepsPrompt: string;
   startExercisePrompt: string;
   counterUpdatesPrompt: string;
   totalLocalReps: string;
@@ -127,9 +133,15 @@ export const messages: Record<Locale, Messages> = {
     russian: "Russian",
     session: "Session",
     currentSession: "Current session",
+    allTimeTotal: "All-time total",
+    allTimeShort: "all-time",
+    noRepsYet: "No reps yet",
+    firstRepPrompt: "Start the camera and do your first {exercise}.",
+    continueWorkoutPrompt: "Ready for another session?",
+    addMoreRepsPrompt: "Start the camera and add more reps.",
     startExercisePrompt: "Start doing {exercise} to see the count here.",
     counterUpdatesPrompt: "The counter updates as a valid rep is completed.",
-    totalLocalReps: "Total local reps",
+    totalLocalReps: "All-time total",
     totalReps: "Total reps",
     totalPushups: "Total push-ups",
     totalSquats: "Total squats",
@@ -223,9 +235,15 @@ export const messages: Record<Locale, Messages> = {
     russian: "Русский",
     session: "Подход",
     currentSession: "Текущий подход",
+    allTimeTotal: "Всего",
+    allTimeShort: "всего",
+    noRepsYet: "Повторов пока нет",
+    firstRepPrompt: "Включите камеру и сделайте первое {exercise}.",
+    continueWorkoutPrompt: "Готовы к новому подходу?",
+    addMoreRepsPrompt: "Включите камеру и добавьте еще повторы.",
     startExercisePrompt: "Начните делать {exercise}, чтобы увидеть счетчик здесь.",
     counterUpdatesPrompt: "Счетчик обновляется после каждого корректного повтора.",
-    totalLocalReps: "Всего локальных повторов",
+    totalLocalReps: "Всего",
     totalReps: "Всего повторов",
     totalPushups: "Всего отжиманий",
     totalSquats: "Всего приседаний",

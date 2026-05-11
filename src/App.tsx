@@ -125,6 +125,14 @@ function formatExerciseName(exercise: ExerciseType, t: Messages): string {
   return exercise === "pushup" ? t.pushupsLower : t.squatsLower;
 }
 
+function formatFirstRepExerciseName(exercise: ExerciseType, locale: Locale): string {
+  if (locale === "ru") {
+    return exercise === "pushup" ? "отжимание" : "приседание";
+  }
+
+  return exercise === "pushup" ? "push-up" : "squat";
+}
+
 function formatTime(date: Date, locale: Locale): string {
   return new Intl.DateTimeFormat(locale === "ru" ? "ru-RU" : "en-US", {
     hour: "2-digit",
@@ -314,6 +322,7 @@ function App() {
   const totalReps = totals.pushups + totals.squats;
   const historyDays = useMemo(() => buildHistoryDays(history, locale), [history, locale]);
   const selectedExerciseText = formatExerciseName(selectedExercise, t);
+  const firstRepExerciseText = formatFirstRepExerciseName(selectedExercise, locale);
 
   const handleSelectExercise = useCallback(
     (exercise: ExerciseType) => {
@@ -324,12 +333,13 @@ function App() {
   );
 
   const handleCameraToggle = useCallback(() => {
-    resetTransition();
-
     if (isCameraActive) {
       stopCamera();
+      resetSession();
       return;
     }
+
+    resetSession();
 
     if (settings.soundEnabled) {
       ensureAudioContext();
@@ -337,15 +347,15 @@ function App() {
 
     startNewSession();
     void startCamera();
-  }, [ensureAudioContext, isCameraActive, resetTransition, settings.soundEnabled, startCamera, startNewSession, stopCamera]);
+  }, [ensureAudioContext, isCameraActive, resetSession, settings.soundEnabled, startCamera, startNewSession, stopCamera]);
 
   const handleLoadVideoFile = useCallback(
     (file: File) => {
-      resetTransition();
+      resetSession();
       startNewSession();
       void loadVideoFile(file);
     },
-    [loadVideoFile, resetTransition, startNewSession],
+    [loadVideoFile, resetSession, startNewSession],
   );
 
   const handleClearVideoFile = useCallback(() => {
@@ -354,8 +364,8 @@ function App() {
     }
 
     clearVideoFile();
-    resetTransition();
-  }, [clearVideoFile, resetTransition, t.confirmClearTestVideo]);
+    resetSession();
+  }, [clearVideoFile, resetSession, t.confirmClearTestVideo]);
 
   const handleResetSession = useCallback(() => {
     if (!confirmDestructiveAction(t.confirmResetSession)) {
@@ -417,6 +427,7 @@ function App() {
           selectedExercise={selectedExercise}
           selectedExerciseLabel={selectedExerciseLabel}
           selectedExerciseText={selectedExerciseText}
+          firstRepExerciseText={firstRepExerciseText}
           sessionCounts={sessionCounts}
           activeSessionCount={activeSessionCount}
           selectedExerciseTotal={selectedExerciseTotal}
@@ -492,6 +503,7 @@ function MainScreen({
   selectedExercise,
   selectedExerciseLabel,
   selectedExerciseText,
+  firstRepExerciseText,
   sessionCounts,
   activeSessionCount,
   selectedExerciseTotal,
@@ -527,6 +539,7 @@ function MainScreen({
   selectedExercise: ExerciseType;
   selectedExerciseLabel: string;
   selectedExerciseText: string;
+  firstRepExerciseText: string;
   sessionCounts: SessionCounts;
   activeSessionCount: number;
   selectedExerciseTotal: number;
@@ -605,6 +618,11 @@ function MainScreen({
             {isCameraActive || isVideoFileLoaded ? t.trackingActive : t.cameraReady}
           </span>
           <span>{selectedExerciseLabel}</span>
+          {selectedExerciseTotal > 0 && (
+            <span className="mt-1 block text-white">
+              {selectedExerciseTotal} {t.allTimeShort}
+            </span>
+          )}
         </div>
       </header>
 
@@ -623,11 +641,21 @@ function MainScreen({
               </p>
               <p className="mt-4 text-sm text-[#c4c9ac]">{t.counterUpdatesPrompt}</p>
             </>
+          ) : selectedExerciseTotal === 0 ? (
+            <>
+              <p className="text-3xl font-black leading-tight text-white sm:text-4xl">{t.noRepsYet}</p>
+              <p className="mt-4 text-sm text-[#c4c9ac]">
+                {t.firstRepPrompt.replace("{exercise}", firstRepExerciseText)}
+              </p>
+            </>
           ) : (
             <>
-              <p className="text-sm uppercase tracking-[0.28em] text-[#c4c9ac]">{t.totalLocalReps}</p>
-              <p className="mt-2 text-7xl font-black leading-none text-[#c3f400] sm:text-8xl">{selectedExerciseTotal}</p>
-              <p className="mt-3 text-xs uppercase tracking-[0.2em] text-white">{selectedExerciseLabel}</p>
+              <p className="text-sm uppercase tracking-[0.28em] text-[#c4c9ac]">{t.allTimeTotal}</p>
+              <p className="mt-2 text-7xl font-black leading-none text-[#c3f400] sm:text-8xl">
+                {selectedExerciseTotal}
+              </p>
+              <p className="mt-5 text-2xl font-black leading-tight text-white sm:text-3xl">{t.continueWorkoutPrompt}</p>
+              <p className="mt-3 text-sm text-[#c4c9ac]">{t.addMoreRepsPrompt}</p>
             </>
           )}
         </div>
