@@ -447,7 +447,7 @@ function MainScreen({
         <div className="pointer-events-auto relative">
           <button
             type="button"
-            className="grid h-11 w-11 place-items-center rounded-full border border-[#444933]/70 bg-[#131314]/75 text-white shadow-2xl backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400]"
+            className="grid h-11 w-11 place-items-center rounded-md border border-[#444933]/70 bg-[#131314]/75 text-white shadow-2xl backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400]"
             onClick={onToggleMenu}
             aria-label={t.menu}
             aria-expanded={isMenuOpen}
@@ -457,14 +457,14 @@ function MainScreen({
           {isMenuOpen && <AppMenu onNavigate={onNavigate} />}
         </div>
 
-        <div className="rounded-full border border-[#444933]/60 bg-[#131314]/65 px-4 py-2 text-right text-[10px] uppercase tracking-[0.18em] text-[#c4c9ac] backdrop-blur">
+        <div className="rounded-md border border-[#444933]/60 bg-[#131314]/65 px-4 py-2 text-right text-[10px] uppercase tracking-[0.18em] text-[#c4c9ac] backdrop-blur">
           <span className="block text-[#c3f400]">{isCameraActive || isVideoFileLoaded ? "Tracking active" : "Camera ready"}</span>
           <span>{selectedExerciseLabel}</span>
         </div>
       </header>
 
       <div className="pointer-events-none absolute inset-x-4 top-1/2 z-10 -translate-y-1/2 text-center">
-        <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-[#131314]/35 px-6 py-7 shadow-2xl backdrop-blur-sm">
+        <div className="mx-auto max-w-md rounded-md border border-white/10 bg-[#131314]/35 px-6 py-7 shadow-2xl backdrop-blur-sm">
           {isCameraActive && activeSessionCount > 0 ? (
             <>
               <p className="text-sm uppercase tracking-[0.28em] text-[#c3f400]">{selectedExerciseLabel}</p>
@@ -514,7 +514,7 @@ function MainScreen({
       <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <button
           type="button"
-          className="inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-3 rounded-full bg-[#c3f400] px-6 text-sm font-black uppercase tracking-[0.1em] text-[#161e00] shadow-[0_18px_50px_rgba(195,244,0,0.28)] transition hover:bg-[#d8ff33] active:scale-[0.99]"
+          className="inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-3 rounded-md bg-[#c3f400] px-6 text-sm font-black uppercase tracking-[0.1em] text-[#161e00] shadow-[0_18px_50px_rgba(195,244,0,0.22)] transition hover:bg-[#d8ff33] active:scale-[0.99]"
           onClick={onCameraToggle}
         >
           {isCameraActive ? <CameraOff size={20} aria-hidden="true" /> : <Camera size={20} aria-hidden="true" />}
@@ -541,7 +541,7 @@ function ContentScreen({
         <header className="mb-8 flex items-center justify-between gap-4">
           <button
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#444933] bg-[#1c1b1c] text-[#c4c9ac] transition hover:border-[#c3f400] hover:text-[#c3f400]"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-[#444933] bg-[#1c1b1c] text-[#c4c9ac] transition hover:border-[#c3f400] hover:text-[#c3f400]"
             onClick={onBack}
             aria-label="Back to main screen"
           >
@@ -590,7 +590,7 @@ function OverviewScreen({
         <div className="flex gap-2">
           <button
             type="button"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#c3f400] px-4 text-sm font-bold uppercase tracking-[0.08em] text-[#c3f400] transition hover:bg-[#c3f400] hover:text-[#161e00]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[#c3f400] px-4 text-sm font-bold uppercase tracking-[0.08em] text-[#c3f400] transition hover:bg-[#c3f400] hover:text-[#161e00]"
             onClick={onExportCsv}
           >
             <Download size={17} aria-hidden="true" />
@@ -598,7 +598,7 @@ function OverviewScreen({
           </button>
           <button
             type="button"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#444933] px-4 text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac] transition hover:border-white hover:text-white"
+            className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[#444933] px-4 text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac] transition hover:border-white hover:text-white"
             onClick={onResetHistory}
             disabled={historyDays.length === 0}
           >
@@ -610,7 +610,7 @@ function OverviewScreen({
 
       <div className="grid gap-3">
         {historyDays.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#444933] bg-[#1c1b1c]/70 p-6 text-[#c4c9ac]">
+          <div className="rounded-md border border-dashed border-[#444933] bg-[#1c1b1c]/70 p-6 text-[#c4c9ac]">
             No session history yet. Start the camera and complete reps to fill this overview.
           </div>
         ) : (
@@ -618,7 +618,7 @@ function OverviewScreen({
             const isExpanded = expandedDays.has(day.key);
 
             return (
-              <article key={day.key} className="overflow-hidden rounded-2xl border border-[#444933]/80 bg-[#1c1b1c]/85">
+              <article key={day.key} className="overflow-hidden rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85">
                 <button
                   type="button"
                   className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left sm:px-5"
@@ -636,7 +636,7 @@ function OverviewScreen({
                     {day.sessions.map((session, index) => (
                       <div
                         key={session.sessionId}
-                        className="grid gap-1 rounded-xl bg-[#131314]/70 p-4 text-sm sm:grid-cols-[1fr_auto] sm:items-center"
+                        className="grid gap-1 rounded-sm bg-[#131314]/70 p-4 text-sm sm:grid-cols-[1fr_auto] sm:items-center"
                       >
                         <span className="font-bold text-white">
                           Session {index + 1}: {summarizeCounts(session.counts, locale)}
@@ -676,7 +676,7 @@ function SettingsScreen({
     <div className="grid gap-4">
       <SettingsRow icon={<Settings size={20} aria-hidden="true" />} label="Language">
         <select
-          className="min-h-11 rounded-full border border-[#444933] bg-[#131314] px-4 text-sm font-bold text-white outline-none focus:border-[#c3f400]"
+          className="min-h-11 rounded-md border border-[#444933] bg-[#131314] px-4 text-sm font-bold text-white outline-none focus:border-[#c3f400]"
           value={locale}
           onChange={(event) => onLocaleChange(event.target.value as Locale)}
         >
@@ -698,8 +698,8 @@ function SettingsScreen({
 
 function AboutScreen() {
   return (
-    <article className="rounded-2xl border border-[#444933]/80 bg-[#1c1b1c]/85 p-6 shadow-2xl sm:p-8">
-      <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#c3f400] text-[#161e00]">
+    <article className="rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-6 shadow-2xl sm:p-8">
+      <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#c3f400] text-[#161e00]">
         <Info size={24} aria-hidden="true" />
       </div>
       <h2 className="text-2xl font-black uppercase tracking-[0.1em] text-white">Local exercise counter</h2>
@@ -717,7 +717,7 @@ function AboutScreen() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-2xl border border-[#444933]/80 bg-[#1c1b1c]/85 p-5">
+    <div className="rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-5">
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#c4c9ac]">{label}</p>
       <p className="mt-3 text-5xl font-black leading-none text-white">{value}</p>
     </div>
@@ -726,7 +726,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
 
 function SettingsRow({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
-    <div className="grid gap-4 rounded-2xl border border-[#444933]/80 bg-[#1c1b1c]/85 p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+    <div className="grid gap-4 rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-5 sm:grid-cols-[1fr_auto] sm:items-center">
       <div className="flex items-center gap-3 text-white">
         <span className="text-[#c3f400]">{icon}</span>
         <span className="font-black uppercase tracking-[0.12em]">{label}</span>
@@ -740,7 +740,7 @@ function ToggleButton({ enabled, onChange }: { enabled: boolean; onChange: (enab
   return (
     <button
       type="button"
-      className={`inline-flex min-h-11 min-w-32 items-center justify-between gap-3 rounded-full border px-4 text-sm font-black uppercase tracking-[0.08em] transition ${
+      className={`inline-flex min-h-11 min-w-32 items-center justify-between gap-3 rounded-md border px-4 text-sm font-black uppercase tracking-[0.08em] transition ${
         enabled
           ? "border-[#c3f400] bg-[#c3f400] text-[#161e00]"
           : "border-[#444933] bg-[#131314] text-[#c4c9ac]"
@@ -749,7 +749,7 @@ function ToggleButton({ enabled, onChange }: { enabled: boolean; onChange: (enab
       aria-pressed={enabled}
     >
       {enabled ? "On" : "Off"}
-      <span className={`h-3 w-3 rounded-full ${enabled ? "bg-[#161e00]" : "bg-[#8e9379]"}`} />
+      <span className={`h-3 w-3 rounded-sm ${enabled ? "bg-[#161e00]" : "bg-[#8e9379]"}`} />
     </button>
   );
 }

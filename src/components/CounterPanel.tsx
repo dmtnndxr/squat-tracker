@@ -68,7 +68,7 @@ export function CounterPanel({
   const sourceLabel = isCameraActive ? t.cameraOn : isVideoFileLoaded ? "Test video" : t.noSource;
 
   return (
-    <aside className="pointer-events-auto absolute bottom-36 left-4 z-30 max-h-[42dvh] w-[min(24rem,calc(100vw-2rem))] resize overflow-auto rounded-2xl border border-[#444933]/80 bg-[#131314]/90 p-4 text-xs text-[#c4c9ac] shadow-2xl backdrop-blur-xl sm:bottom-auto sm:top-24">
+    <aside className="pointer-events-auto absolute bottom-36 left-4 z-30 max-h-[42dvh] w-[min(24rem,calc(100vw-2rem))] resize overflow-auto rounded-md border border-[#444933]/80 bg-[#131314]/90 p-4 text-xs text-[#c4c9ac] shadow-2xl backdrop-blur-xl sm:bottom-auto sm:top-24">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#00dbe9]">Debug panel</p>
@@ -76,7 +76,7 @@ export function CounterPanel({
             {displayStatus(isPersonDetected, status)}
           </h2>
         </div>
-        <span className="rounded-full border border-[#444933] px-2 py-1 text-[10px] uppercase text-[#c3f400]">
+        <span className="rounded-sm border border-[#444933] px-2 py-1 text-[10px] uppercase text-[#c3f400]">
           {sourceLabel}
         </span>
       </div>
@@ -104,7 +104,7 @@ export function CounterPanel({
       </dl>
 
       {isVideoFileLoaded && videoFileName && (
-        <div className="mt-4 flex items-center justify-between gap-2 rounded-xl bg-white/5 px-3 py-2">
+        <div className="mt-4 flex items-center justify-between gap-2 rounded-sm bg-white/5 px-3 py-2">
           <span className="inline-flex min-w-0 items-center gap-2">
             <FileVideo size={15} aria-hidden="true" />
             <span className="truncate">{videoFileName}</span>
@@ -116,7 +116,7 @@ export function CounterPanel({
       )}
 
       <div className="mt-4 grid gap-2">
-        <label className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-[#c3f400] px-3 text-xs font-black uppercase tracking-[0.08em] text-[#c3f400] transition hover:bg-[#c3f400] hover:text-[#161e00]">
+        <label className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-[#c3f400] px-3 text-xs font-black uppercase tracking-[0.08em] text-[#c3f400] transition hover:bg-[#c3f400] hover:text-[#161e00]">
           <Upload size={15} aria-hidden="true" />
           Load test video
           <input
@@ -135,7 +135,7 @@ export function CounterPanel({
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-white/5 px-3 font-bold text-white hover:bg-white/10"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-white/5 px-3 font-bold text-white hover:bg-white/10"
             onClick={onResetSession}
           >
             <RotateCcw size={15} aria-hidden="true" />
@@ -143,7 +143,7 @@ export function CounterPanel({
           </button>
           <button
             type="button"
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[#ca0a0f]/20 px-3 font-bold text-[#ff7f83] hover:bg-[#ca0a0f]/30"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#ca0a0f]/20 px-3 font-bold text-[#ff7f83] hover:bg-[#ca0a0f]/30"
             onClick={onResetTotals}
           >
             <Trash2 size={15} aria-hidden="true" />

@@ -12,7 +12,7 @@ type ExerciseSelectorProps = {
 export function ExerciseSelector({ selectedExercise, t, onSelectExercise }: ExerciseSelectorProps) {
   return (
     <div
-      className="grid w-full max-w-sm grid-cols-2 rounded-full border border-[#444933]/80 bg-[#131314]/75 p-1 shadow-2xl backdrop-blur"
+      className="grid w-full max-w-sm grid-cols-2 rounded-md border border-[#444933]/80 bg-[#131314]/75 p-1 shadow-2xl backdrop-blur"
       aria-label={t.exerciseMode}
     >
       <ExerciseButton
@@ -45,7 +45,7 @@ function ExerciseButton({
   return (
     <button
       type="button"
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-3 text-xs font-black uppercase tracking-[0.08em] transition ${
+      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-sm px-3 text-xs font-black uppercase tracking-[0.08em] transition ${
         isSelected ? "bg-[#c3f400] text-[#161e00]" : "text-[#c4c9ac] hover:bg-white/10 hover:text-white"
       }`}
       onClick={onClick}

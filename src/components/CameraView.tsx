@@ -54,7 +54,7 @@ export function CameraView({
 
       {(cameraError || poseError) && (
         <p
-          className="absolute left-4 right-4 top-20 z-30 rounded-xl border border-[#c3f400]/60 bg-[#c3f400]/95 px-4 py-3 text-sm font-bold text-[#161e00] shadow-2xl sm:left-6 sm:right-auto sm:max-w-xl"
+          className="absolute left-4 right-4 top-20 z-30 rounded-md border border-[#c3f400]/60 bg-[#c3f400]/95 px-4 py-3 text-sm font-bold text-[#161e00] shadow-2xl sm:left-6 sm:right-auto sm:max-w-xl"
           role="alert"
         >
           {cameraError ?? poseError}
@@ -62,11 +62,11 @@ export function CameraView({
       )}
 
       {isVideoFileLoaded && (
-        <div className="absolute right-4 top-20 z-30 inline-flex max-w-[calc(100vw-2rem)] items-center gap-2 rounded-full border border-[#444933] bg-[#131314]/85 px-3 py-2 text-xs text-white backdrop-blur sm:right-6">
+        <div className="absolute right-4 top-20 z-30 inline-flex max-w-[calc(100vw-2rem)] items-center gap-2 rounded-md border border-[#444933] bg-[#131314]/85 px-3 py-2 text-xs text-white backdrop-blur sm:right-6">
           <span className="truncate">{videoFileName}</span>
           <button
             type="button"
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#c4c9ac] transition hover:bg-white/10 hover:text-white"
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-sm text-[#c4c9ac] transition hover:bg-white/10 hover:text-white"
             onClick={onClearVideoFile}
             aria-label="Clear test video"
           >
