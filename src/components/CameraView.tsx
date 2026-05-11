@@ -4,8 +4,8 @@ import type { Messages } from "../i18n/translations";
 import type { ExerciseType } from "../types/exercise";
 
 const PLACEHOLDER_IMAGES: Record<ExerciseType, string> = {
-  squat: "/squat.png",
-  pushup: "/pushup.png",
+  squat: `${import.meta.env.BASE_URL}squat.png`,
+  pushup: `${import.meta.env.BASE_URL}pushup.png`,
 };
 
 type CameraViewProps = {
