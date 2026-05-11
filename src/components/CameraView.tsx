@@ -4,8 +4,8 @@ import type { Messages } from "../i18n/translations";
 import type { ExerciseType } from "../types/exercise";
 
 const PLACEHOLDER_IMAGES: Record<ExerciseType, string> = {
-  squat: "/figma-assets/gym-main.png",
-  pushup: "/figma-assets/gym-pushup.png",
+  squat: "/squat.png",
+  pushup: "/pushup.png",
 };
 
 type CameraViewProps = {
