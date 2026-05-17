@@ -68,6 +68,18 @@ export function getAdaptiveThresholds(exercise: ExerciseType, angleRange: AngleR
 
   const spread = angleRange.max - angleRange.min;
 
+  if (exercise === "squat") {
+    if (spread < 55 || angleRange.min > 125 || angleRange.max < 145) {
+      return defaults;
+    }
+
+    return {
+      down: Math.max(85, Math.min(115, angleRange.min + spread * 0.3)),
+      up: Math.max(145, Math.min(170, angleRange.min + spread * 0.78)),
+      source: "adaptive",
+    };
+  }
+
   if (spread < 20) {
     return defaults;
   }
