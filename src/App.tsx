@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronRight,
   Download,
+  Github,
   Info,
   Menu,
   RotateCcw,
@@ -27,6 +28,7 @@ import type { Locale, Messages } from "./i18n/translations";
 import type { ExerciseTotals, ExerciseType } from "./types/exercise";
 
 const SETTINGS_STORAGE_KEY = "exercise_counter_settings_v1";
+const GITHUB_URL = "https://github.com/dmtnndxr/squat-tracker";
 
 type AppSettings = {
   debugEnabled: boolean;
@@ -624,17 +626,15 @@ function MainScreen({
           {isMenuOpen && <AppMenu t={t} onNavigate={onNavigate} />}
         </div>
 
-        <div className="rounded-md border border-[#444933]/60 bg-[#131314]/65 px-4 py-2 text-right text-[10px] uppercase tracking-[0.18em] text-[#c4c9ac] backdrop-blur">
-          <span className="block text-[#c3f400]">
-            {isCameraActive || isVideoFileLoaded ? t.trackingActive : t.cameraReady}
-          </span>
-          <span>{selectedExerciseLabel}</span>
-          {selectedExerciseTotal > 0 && (
-            <span className="mt-1 block text-white">
-              {selectedExerciseTotal} {t.allTimeShort}
-            </span>
-          )}
-        </div>
+        <a
+          href={GITHUB_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="pointer-events-auto grid h-11 w-11 place-items-center rounded-md border border-[#444933]/70 bg-[#131314]/75 text-white shadow-2xl backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400] focus:outline-none focus:ring-2 focus:ring-[#c3f400]/70 focus:ring-offset-2 focus:ring-offset-[#131314]"
+          aria-label="GitHub"
+        >
+          <Github size={20} aria-hidden="true" />
+        </a>
       </header>
 
       <div
