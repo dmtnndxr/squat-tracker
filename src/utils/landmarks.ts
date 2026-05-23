@@ -56,7 +56,7 @@ function stateFromAngle(angle: number, upThreshold: number, downThreshold: numbe
 export function getDefaultThresholds(exercise: ExerciseType): PoseThresholds {
   return exercise === "pushup"
     ? { up: 150, down: 95, source: "default" }
-    : { up: 160, down: 100, source: "default" };
+    : { up: 155, down: 100, source: "default" };
 }
 
 export function getAdaptiveThresholds(exercise: ExerciseType, angleRange: AngleRange): PoseThresholds {
@@ -75,7 +75,7 @@ export function getAdaptiveThresholds(exercise: ExerciseType, angleRange: AngleR
 
     return {
       down: Math.max(85, Math.min(115, angleRange.min + spread * 0.3)),
-      up: Math.max(145, Math.min(170, angleRange.min + spread * 0.78)),
+      up: Math.max(145, Math.min(165, angleRange.min + spread * 0.75)),
       source: "adaptive",
     };
   }

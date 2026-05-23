@@ -4,7 +4,7 @@ import { getAdaptiveThresholds } from "./landmarks";
 describe("getAdaptiveThresholds", () => {
   it("keeps default squat thresholds until the observed movement range is large enough", () => {
     expect(getAdaptiveThresholds("squat", { min: 130, max: 168 })).toEqual({
-      up: 160,
+      up: 155,
       down: 100,
       source: "default",
     });
@@ -13,7 +13,7 @@ describe("getAdaptiveThresholds", () => {
   it("clamps adaptive squat thresholds to conservative bounds", () => {
     expect(getAdaptiveThresholds("squat", { min: 75, max: 178 })).toEqual({
       down: 105.9,
-      up: 155.34,
+      up: 152.25,
       source: "adaptive",
     });
   });
