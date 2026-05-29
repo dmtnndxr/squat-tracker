@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import {
   Activity,
-  Camera,
-  CameraOff,
   ChevronDown,
   ChevronRight,
   Download,
@@ -15,10 +13,11 @@ import {
   X,
 } from "lucide-react";
 import { AppMenu, type AppSection } from "./components/AppMenu";
+import { CameraControls } from "./components/CameraControls";
 import { CameraView } from "./components/CameraView";
 import { CounterPanel } from "./components/CounterPanel";
 import { ExerciseSelector } from "./components/ExerciseSelector";
-import { useCamera } from "./hooks/useCamera";
+import { useCamera, type CameraDevice } from "./hooks/useCamera";
 import { useExerciseCounter, type SessionCounts } from "./hooks/useExerciseCounter";
 import { useLocale } from "./hooks/useLocale";
 import { useLocalExerciseTotals } from "./hooks/useLocalExerciseTotals";
@@ -34,6 +33,7 @@ type AppSettings = {
   debugEnabled: boolean;
   soundEnabled: boolean;
   selectedExercise: ExerciseType;
+  selectedCameraId: string | null;
   debugPanelCollapsed: boolean;
   debugPanelPosition: DebugPanelPosition;
 };
@@ -61,6 +61,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   debugEnabled: false,
   soundEnabled: true,
   selectedExercise: "squat",
+  selectedCameraId: null,
   debugPanelCollapsed: false,
   debugPanelPosition: null,
 };
@@ -104,6 +105,10 @@ function loadSettings(): AppSettings {
         parsed.selectedExercise === "pushup" || parsed.selectedExercise === "squat"
           ? parsed.selectedExercise
           : DEFAULT_SETTINGS.selectedExercise,
+      selectedCameraId:
+        typeof parsed.selectedCameraId === "string" && parsed.selectedCameraId.length > 0
+          ? parsed.selectedCameraId
+          : DEFAULT_SETTINGS.selectedCameraId,
       debugPanelCollapsed:
         typeof parsed.debugPanelCollapsed === "boolean"
           ? parsed.debugPanelCollapsed
@@ -236,8 +241,12 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(() => new Set());
   const { locale, setLocale, t } = useLocale();
+  const handleCameraSelectionChange = useCallback((selectedCameraId: string | null) => {
+    setSettings((current) => ({ ...current, selectedCameraId }));
+  }, []);
   const {
     videoRef,
+    cameraDevices,
     isCameraActive,
     isVideoFileLoaded,
     isVideoSourceActive,
@@ -250,6 +259,8 @@ function App() {
   } = useCamera({
     unableToStartCamera: t.unableToStartCamera,
     cameraSecureContextRequired: t.cameraSecureContextRequired,
+    selectedCameraId: settings.selectedCameraId,
+    onCameraSelectionChange: handleCameraSelectionChange,
   });
   const { totals, incrementTotal, resetLocalTotals } = useLocalExerciseTotals();
   const { history, recordRep, resetLocalHistory, exportCsv, startNewSession } = useRepHistory();
@@ -350,8 +361,28 @@ function App() {
     }
 
     startNewSession();
-    void startCamera();
-  }, [ensureAudioContext, isCameraActive, resetSession, settings.soundEnabled, startCamera, startNewSession, stopCamera]);
+    void startCamera(settings.selectedCameraId);
+  }, [
+    ensureAudioContext,
+    isCameraActive,
+    resetSession,
+    settings.selectedCameraId,
+    settings.soundEnabled,
+    startCamera,
+    startNewSession,
+    stopCamera,
+  ]);
+
+  const handleSelectCamera = useCallback(
+    (cameraId: string | null) => {
+      handleCameraSelectionChange(cameraId);
+
+      if (isCameraActive) {
+        void startCamera(cameraId);
+      }
+    },
+    [handleCameraSelectionChange, isCameraActive, startCamera],
+  );
 
   const handleLoadVideoFile = useCallback(
     (file: File) => {
@@ -441,6 +472,8 @@ function App() {
           isCameraActive={isCameraActive}
           isVideoFileLoaded={isVideoFileLoaded}
           videoFileName={videoFileName}
+          cameraDevices={cameraDevices}
+          selectedCameraId={settings.selectedCameraId}
           cameraError={cameraError}
           poseError={poseError}
           videoRef={videoRef}
@@ -457,6 +490,7 @@ function App() {
           onToggleMenu={() => setIsMenuOpen((current) => !current)}
           onNavigate={handleNavigate}
           onCameraToggle={handleCameraToggle}
+          onSelectCamera={handleSelectCamera}
           onSelectExercise={handleSelectExercise}
           onLoadVideoFile={handleLoadVideoFile}
           onClearVideoFile={handleClearVideoFile}
@@ -516,6 +550,8 @@ function MainScreen({
   isCameraActive,
   isVideoFileLoaded,
   videoFileName,
+  cameraDevices,
+  selectedCameraId,
   cameraError,
   poseError,
   videoRef,
@@ -532,6 +568,7 @@ function MainScreen({
   onToggleMenu,
   onNavigate,
   onCameraToggle,
+  onSelectCamera,
   onSelectExercise,
   onLoadVideoFile,
   onClearVideoFile,
@@ -552,6 +589,8 @@ function MainScreen({
   isCameraActive: boolean;
   isVideoFileLoaded: boolean;
   videoFileName: string | null;
+  cameraDevices: CameraDevice[];
+  selectedCameraId: string | null;
   cameraError: string | null;
   poseError: string | null;
   videoRef: RefObject<HTMLVideoElement | null>;
@@ -579,6 +618,7 @@ function MainScreen({
   onToggleMenu: () => void;
   onNavigate: (section: AppSection) => void;
   onCameraToggle: () => void;
+  onSelectCamera: (cameraId: string | null) => void;
   onSelectExercise: (exercise: ExerciseType) => void;
   onLoadVideoFile: (file: File) => void;
   onClearVideoFile: () => void;
@@ -708,18 +748,14 @@ function MainScreen({
       )}
 
       <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <button
-          type="button"
-          className={`inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-3 rounded-md px-6 text-sm font-black uppercase tracking-[0.1em] shadow-[0_18px_50px_rgba(0,0,0,0.24)] transition active:scale-[0.99] ${
-            isCameraActive
-              ? "bg-[#ff6b35] text-[#1f0700] hover:bg-[#ff855c]"
-              : "bg-[#c3f400] text-[#161e00] shadow-[0_18px_50px_rgba(195,244,0,0.22)] hover:bg-[#d8ff33]"
-          }`}
-          onClick={onCameraToggle}
-        >
-          {isCameraActive ? <CameraOff size={20} aria-hidden="true" /> : <Camera size={20} aria-hidden="true" />}
-          {isCameraActive ? t.turnOffCamera : t.turnOnCamera}
-        </button>
+        <CameraControls
+          t={t}
+          isCameraActive={isCameraActive}
+          cameraDevices={cameraDevices}
+          selectedCameraId={selectedCameraId}
+          onCameraToggle={onCameraToggle}
+          onSelectCamera={onSelectCamera}
+        />
         <ExerciseSelector selectedExercise={selectedExercise} t={t} onSelectExercise={onSelectExercise} />
       </div>
     </section>

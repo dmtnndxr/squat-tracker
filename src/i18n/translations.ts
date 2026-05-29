@@ -46,6 +46,9 @@ export type Messages = {
   totalPushups: string;
   totalSquats: string;
   currentExercise: string;
+  cameraSource: string;
+  defaultCamera: string;
+  cameraLabel: string;
   cameraOn: string;
   cameraOff: string;
   testVideo: string;
@@ -150,6 +153,9 @@ export const messages: Record<Locale, Messages> = {
     totalPushups: "Total push-ups",
     totalSquats: "Total squats",
     currentExercise: "Current exercise",
+    cameraSource: "Camera",
+    defaultCamera: "Default camera",
+    cameraLabel: "Camera {index}",
     cameraOn: "Camera on",
     cameraOff: "Camera off",
     testVideo: "Test video",
@@ -256,6 +262,9 @@ export const messages: Record<Locale, Messages> = {
     totalPushups: "Всего отжиманий",
     totalSquats: "Всего приседаний",
     currentExercise: "Текущее упражнение",
+    cameraSource: "Камера",
+    defaultCamera: "Камера по умолчанию",
+    cameraLabel: "Камера {index}",
     cameraOn: "Камера включена",
     cameraOff: "Камера выключена",
     testVideo: "Тестовое видео",

@@ -5,7 +5,22 @@ type UseCameraMessages = {
   cameraSecureContextRequired: string;
 };
 
-export function useCamera({ unableToStartCamera, cameraSecureContextRequired }: UseCameraMessages) {
+export type CameraDevice = {
+  deviceId: string;
+  label: string;
+};
+
+type UseCameraOptions = UseCameraMessages & {
+  selectedCameraId: string | null;
+  onCameraSelectionChange: (cameraId: string | null) => void;
+};
+
+export function useCamera({
+  unableToStartCamera,
+  cameraSecureContextRequired,
+  selectedCameraId,
+  onCameraSelectionChange,
+}: UseCameraOptions) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const objectUrlRef = useRef<string | null>(null);
@@ -13,6 +28,32 @@ export function useCamera({ unableToStartCamera, cameraSecureContextRequired }: 
   const [isVideoFileLoaded, setIsVideoFileLoaded] = useState(false);
   const [videoFileName, setVideoFileName] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraDevices, setCameraDevices] = useState<CameraDevice[]>([]);
+
+  const refreshCameraDevices = useCallback(async () => {
+    const enumerateDevices = globalThis.navigator?.mediaDevices?.enumerateDevices;
+
+    if (!enumerateDevices) {
+      setCameraDevices([]);
+      return [];
+    }
+
+    try {
+      const devices = await enumerateDevices.call(globalThis.navigator.mediaDevices);
+      const videoDevices = devices
+        .filter((device) => device.kind === "videoinput" && device.deviceId)
+        .map((device) => ({
+          deviceId: device.deviceId,
+          label: device.label,
+        }));
+
+      setCameraDevices(videoDevices);
+      return videoDevices;
+    } catch {
+      setCameraDevices([]);
+      return [];
+    }
+  }, []);
 
   const revokeVideoFile = useCallback(() => {
     if (objectUrlRef.current) {
@@ -45,9 +86,11 @@ export function useCamera({ unableToStartCamera, cameraSecureContextRequired }: 
     }
   }, [revokeVideoFile]);
 
-  const startCamera = useCallback(async () => {
+  const startCamera = useCallback(async (cameraId = selectedCameraId) => {
     setCameraError(null);
     clearVideoFile();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
 
     try {
       const getUserMedia = globalThis.navigator?.mediaDevices?.getUserMedia;
@@ -58,14 +101,36 @@ export function useCamera({ unableToStartCamera, cameraSecureContextRequired }: 
         return;
       }
 
-      const stream = await getUserMedia.call(globalThis.navigator.mediaDevices, {
-        video: {
-          facingMode: "user",
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      });
+      const videoConstraints: MediaTrackConstraints = {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        ...(cameraId ? { deviceId: { exact: cameraId } } : { facingMode: "user" }),
+      };
+
+      let stream: MediaStream;
+
+      try {
+        stream = await getUserMedia.call(globalThis.navigator.mediaDevices, {
+          video: videoConstraints,
+          audio: false,
+        });
+      } catch (error) {
+        if (!cameraId) {
+          throw error;
+        }
+
+        stream = await getUserMedia.call(globalThis.navigator.mediaDevices, {
+          video: {
+            facingMode: "user",
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+        onCameraSelectionChange(null);
+      }
+
+      void refreshCameraDevices();
 
       streamRef.current = stream;
 
@@ -79,7 +144,14 @@ export function useCamera({ unableToStartCamera, cameraSecureContextRequired }: 
       setCameraError(error instanceof Error ? error.message : unableToStartCamera);
       setIsCameraActive(false);
     }
-  }, [cameraSecureContextRequired, clearVideoFile, unableToStartCamera]);
+  }, [
+    cameraSecureContextRequired,
+    clearVideoFile,
+    onCameraSelectionChange,
+    refreshCameraDevices,
+    selectedCameraId,
+    unableToStartCamera,
+  ]);
 
   const loadVideoFile = useCallback(
     async (file: File) => {
@@ -117,8 +189,20 @@ export function useCamera({ unableToStartCamera, cameraSecureContextRequired }: 
     [revokeVideoFile, stopCamera],
   );
 
+  useEffect(() => {
+    void refreshCameraDevices();
+
+    const mediaDevices = globalThis.navigator?.mediaDevices;
+    mediaDevices?.addEventListener?.("devicechange", refreshCameraDevices);
+
+    return () => {
+      mediaDevices?.removeEventListener?.("devicechange", refreshCameraDevices);
+    };
+  }, [refreshCameraDevices]);
+
   return {
     videoRef,
+    cameraDevices,
     isCameraActive,
     isVideoFileLoaded,
     isVideoSourceActive: isCameraActive || isVideoFileLoaded,
