@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 type UseCameraMessages = {
   unableToStartCamera: string;
   cameraSecureContextRequired: string;
+  cameraPermissionDenied: string;
 };
 
 export type CameraDevice = {
@@ -18,6 +19,7 @@ type UseCameraOptions = UseCameraMessages & {
 export function useCamera({
   unableToStartCamera,
   cameraSecureContextRequired,
+  cameraPermissionDenied,
   selectedCameraId,
   onCameraSelectionChange,
 }: UseCameraOptions) {
@@ -86,6 +88,24 @@ export function useCamera({
     }
   }, [revokeVideoFile]);
 
+  const cameraErrorMessage = useCallback(
+    (error: unknown) => {
+      if (error instanceof DOMException && (error.name === "NotAllowedError" || error.name === "SecurityError")) {
+        return cameraPermissionDenied;
+      }
+
+      return error instanceof Error && error.message ? error.message : unableToStartCamera;
+    },
+    [cameraPermissionDenied, unableToStartCamera],
+  );
+
+  const shouldFallbackToDefaultCamera = useCallback(
+    (error: unknown) =>
+      error instanceof DOMException &&
+      (error.name === "OverconstrainedError" || error.name === "NotFoundError" || error.name === "NotReadableError"),
+    [],
+  );
+
   const startCamera = useCallback(async (cameraId = selectedCameraId) => {
     setCameraError(null);
     clearVideoFile();
@@ -115,7 +135,7 @@ export function useCamera({
           audio: false,
         });
       } catch (error) {
-        if (!cameraId) {
+        if (!cameraId || !shouldFallbackToDefaultCamera(error)) {
           throw error;
         }
 
@@ -141,16 +161,17 @@ export function useCamera({
 
       setIsCameraActive(true);
     } catch (error) {
-      setCameraError(error instanceof Error ? error.message : unableToStartCamera);
+      setCameraError(cameraErrorMessage(error));
       setIsCameraActive(false);
     }
   }, [
     cameraSecureContextRequired,
+    cameraErrorMessage,
     clearVideoFile,
     onCameraSelectionChange,
     refreshCameraDevices,
     selectedCameraId,
-    unableToStartCamera,
+    shouldFallbackToDefaultCamera,
   ]);
 
   const loadVideoFile = useCallback(

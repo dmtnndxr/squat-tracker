@@ -259,6 +259,7 @@ function App() {
   } = useCamera({
     unableToStartCamera: t.unableToStartCamera,
     cameraSecureContextRequired: t.cameraSecureContextRequired,
+    cameraPermissionDenied: t.cameraPermissionDenied,
     selectedCameraId: settings.selectedCameraId,
     onCameraSelectionChange: handleCameraSelectionChange,
   });
