@@ -20,20 +20,30 @@ export function CameraControls({
   onSelectCamera,
 }: CameraControlsProps) {
   const canSwitchCamera = isCameraActive && cameraDevices.length > 1;
+  const buttonLabel = isCameraActive ? t.turnOffCamera : t.turnOnCamera;
 
   return (
-    <div className="flex w-full max-w-sm items-stretch gap-2">
+    <div className="flex w-full max-w-sm items-stretch rounded-md shadow-[0_18px_50px_rgba(0,0,0,0.24)]">
+      <button
+        type="button"
+        className={`inline-flex min-h-14 min-w-0 flex-1 items-center justify-center gap-3 px-6 text-sm font-black uppercase tracking-[0.1em] transition active:scale-[0.99] ${
+          canSwitchCamera ? "rounded-l-md rounded-r-none" : "rounded-md"
+        } ${
+          isCameraActive
+            ? "bg-[#ff6b35] text-[#1f0700] hover:bg-[#ff855c]"
+            : "bg-[#c3f400] text-[#161e00] shadow-[0_18px_50px_rgba(195,244,0,0.22)] hover:bg-[#d8ff33]"
+        }`}
+        onClick={onCameraToggle}
+        aria-label={buttonLabel}
+      >
+        {isCameraActive ? <VideoOff size={20} aria-hidden="true" /> : <Video size={20} aria-hidden="true" />}
+        <span className="truncate">{buttonLabel}</span>
+      </button>
+
       {canSwitchCamera && (
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md border border-[#444933]/80 bg-[#131314]/85 text-white shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400]">
+        <div className="relative min-h-14 w-14 shrink-0 overflow-hidden rounded-r-md border-l border-[#1f0700]/25 bg-[#ff6b35] text-[#1f0700] transition hover:bg-[#ff855c]">
           <span className="pointer-events-none absolute inset-0 grid place-items-center">
-            <span className="relative">
-              <Video size={20} aria-hidden="true" />
-              <ChevronDown
-                className="absolute -bottom-2 -right-3 rounded-sm bg-[#131314]"
-                size={13}
-                aria-hidden="true"
-              />
-            </span>
+            <ChevronDown size={22} strokeWidth={2.6} aria-hidden="true" />
           </span>
           <select
             className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
@@ -51,19 +61,6 @@ export function CameraControls({
           </select>
         </div>
       )}
-
-      <button
-        type="button"
-        className={`inline-flex min-h-14 min-w-0 flex-1 items-center justify-center gap-3 rounded-md px-6 text-sm font-black uppercase tracking-[0.1em] shadow-[0_18px_50px_rgba(0,0,0,0.24)] transition active:scale-[0.99] ${
-          isCameraActive
-            ? "bg-[#ff6b35] text-[#1f0700] hover:bg-[#ff855c]"
-            : "bg-[#c3f400] text-[#161e00] shadow-[0_18px_50px_rgba(195,244,0,0.22)] hover:bg-[#d8ff33]"
-        }`}
-        onClick={onCameraToggle}
-      >
-        {isCameraActive ? <VideoOff size={20} aria-hidden="true" /> : <Video size={20} aria-hidden="true" />}
-        <span className="truncate">{isCameraActive ? t.turnOffCamera : t.turnOnCamera}</span>
-      </button>
     </div>
   );
 }
