@@ -1,4 +1,4 @@
-import { Camera, CameraOff, ChevronDown } from "lucide-react";
+import { ChevronDown, Video, VideoOff } from "lucide-react";
 import type { CameraDevice } from "../hooks/useCamera";
 import type { Messages } from "../i18n/translations";
 
@@ -27,7 +27,7 @@ export function CameraControls({
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md border border-[#444933]/80 bg-[#131314]/85 text-white shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400]">
           <span className="pointer-events-none absolute inset-0 grid place-items-center">
             <span className="relative">
-              <Camera size={20} aria-hidden="true" />
+              <Video size={20} aria-hidden="true" />
               <ChevronDown
                 className="absolute -bottom-2 -right-3 rounded-sm bg-[#131314]"
                 size={13}
@@ -61,7 +61,7 @@ export function CameraControls({
         }`}
         onClick={onCameraToggle}
       >
-        {isCameraActive ? <CameraOff size={20} aria-hidden="true" /> : <Camera size={20} aria-hidden="true" />}
+        {isCameraActive ? <VideoOff size={20} aria-hidden="true" /> : <Video size={20} aria-hidden="true" />}
         <span className="truncate">{isCameraActive ? t.turnOffCamera : t.turnOnCamera}</span>
       </button>
     </div>
