@@ -120,8 +120,8 @@ export type Messages = {
 
 export const messages: Record<Locale, Messages> = {
   en: {
-    appTitle: "Rep Tracker",
-    appSubtitle: "Browser workout counter",
+    appTitle: "Squat Tracker",
+    appSubtitle: "Browser squat counter",
     pushups: "Push-ups",
     squats: "Squats",
     pushupsLower: "push-ups",
@@ -230,19 +230,19 @@ export const messages: Record<Locale, Messages> = {
       "Camera access requires HTTPS or localhost. Open this app over HTTPS to use the camera from another device.",
     cameraPermissionDenied: "Camera access was blocked. Allow camera access in your browser settings and try again.",
     unableToLoadPoseModel: "Unable to load pose model",
-    aboutTitle: "Local exercise counter",
+    aboutTitle: "Local squat counter",
     aboutDescription:
-      "This app uses your device camera and pose detection to count exercise repetitions locally in the browser. Choose an exercise, start the camera, and perform reps while the app tracks your session and total progress.",
+      "This app helps you keep a small daily squat baseline at home when a walk or treadmill workout is not practical. Start the camera and keep working or watching video content while local pose detection counts squats so you know whether your norm is done. Push-up tracking is available as an experimental extra mode.",
     aboutPrivacy:
       "Data is saved only in your browser and may be deleted by the browser without warning. We recommend regularly exporting or backing up your data.",
     csvFileName: "exercise-history.csv",
-    seoTitle: "Exercise Counter - Push-up and Squat Counter",
+    seoTitle: "Squat Tracker - Daily Squat Counter",
     seoDescription:
-      "A private browser exercise counter that uses your camera to count push-ups and squats locally on your device.",
+      "A private browser squat counter that uses your camera to count squats locally on your device.",
   },
   ru: {
-    appTitle: "Счет повторений",
-    appSubtitle: "Браузерный счетчик тренировки",
+    appTitle: "Счетчик приседаний",
+    appSubtitle: "Браузерный счетчик приседаний",
     pushups: "Отжимания",
     squats: "Приседания",
     pushupsLower: "отжимания",
@@ -352,15 +352,15 @@ export const messages: Record<Locale, Messages> = {
     cameraPermissionDenied:
       "Доступ к камере заблокирован. Разрешите доступ к камере в настройках браузера и попробуйте снова.",
     unableToLoadPoseModel: "Не удалось загрузить модель позы",
-    aboutTitle: "Локальный счетчик упражнений",
+    aboutTitle: "Локальный счетчик приседаний",
     aboutDescription:
-      "Это приложение использует камеру устройства и распознавание позы, чтобы считать повторы упражнений локально в браузере. Выберите упражнение, включите камеру и выполняйте повторы, пока приложение отслеживает подход и общий прогресс.",
+      "Это приложение помогает держать небольшую ежедневную норму приседаний дома, когда не получается выйти на прогулку или нет дорожки для ходьбы и бега. Включите камеру и работайте или смотрите видеоконтент, пока локальное распознавание позы считает приседания, чтобы вы точно знали, выполнена норма или нет. Отжимания доступны как экспериментальный дополнительный режим.",
     aboutPrivacy:
       "Данные сохраняются только в вашем браузере и могут быть удалены браузером без предупреждения. Рекомендуем регулярно экспортировать или сохранять резервную копию данных.",
     csvFileName: "exercise-history.csv",
-    seoTitle: "Счетчик упражнений - отжимания и приседания",
+    seoTitle: "Счетчик приседаний",
     seoDescription:
-      "Приватный браузерный счетчик упражнений, который использует камеру и считает отжимания и приседания локально на устройстве.",
+      "Приватный браузерный счетчик приседаний, который использует камеру и считает приседания локально на устройстве.",
   },
 };
 

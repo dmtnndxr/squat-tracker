@@ -1,7 +1,7 @@
 {
-  "name": "Exercise Counter - Push-up and Squat Counter",
-  "short_name": "Exercise Counter",
-  "description": "A private browser exercise counter for push-ups and squats.",
+  "name": "Squat Tracker - Daily Squat Counter",
+  "short_name": "Squat Tracker",
+  "description": "A private browser squat counter.",
   "start_url": "/squat-tracker/",
   "scope": "/squat-tracker/",
   "display": "standalone",

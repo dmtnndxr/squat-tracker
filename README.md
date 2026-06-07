@@ -1,12 +1,16 @@
 # Squat Tracker
 
-A local browser-based exercise counter. The app uses a live camera feed or an uploaded test video, detects body pose with MediaPipe Tasks Vision, and counts repetitions without sending video or history to a server.
+[Open the app](https://dmtnndxr.github.io/squat-tracker/)
+
+A local browser-based squat counter for keeping a small daily activity baseline at home. It is useful when a walk or treadmill workout is not practical: do squats, let the app count repetitions from a live camera feed or uploaded test video, and keep working or watching video content without tracking the count manually.
+
+For example, the project started from a simple personal goal: do 400 squats per day and know exactly whether the daily norm is done, without sending video or history to a server. Pose detection runs locally in the browser with MediaPipe Tasks Vision.
 
 The project is under active development: the interface and counting logic are still being refined, but the core workflow already works.
 
 ## Features
 
-- Counts squats and push-ups.
+- Counts squats; push-up tracking is available as an experimental extra mode.
 - Supports a live camera feed, test video upload, and a canvas overlay with pose landmarks.
 - Tracks the current session count, local totals, and repetition history.
 - Groups history by day and session, with CSV export.
