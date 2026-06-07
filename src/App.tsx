@@ -9,6 +9,7 @@ import {
   Menu,
   RotateCcw,
   Settings,
+  Share2,
   Volume2,
   X,
 } from "lucide-react";
@@ -28,6 +29,7 @@ import type { ExerciseTotals, ExerciseType } from "./types/exercise";
 
 const SETTINGS_STORAGE_KEY = "exercise_counter_settings_v1";
 const GITHUB_URL = "https://github.com/dmtnndxr/squat-tracker";
+const APP_SHARE_URL = "https://dmtnndxr.github.io/squat-tracker/";
 
 type AppSettings = {
   debugEnabled: boolean;
@@ -56,6 +58,8 @@ type HistoryDay = {
   totals: SessionCounts;
   sessions: HistorySession[];
 };
+
+type ShareScope = "day" | "session";
 
 const DEFAULT_SETTINGS: AppSettings = {
   debugEnabled: false,
@@ -172,6 +176,35 @@ function summarizeCounts(counts: SessionCounts, t: Messages): string {
   }
 
   return parts.length > 0 ? parts.join(", ") : t.noReps;
+}
+
+function summarizeSession(session: HistorySession, index: number, t: Messages, locale: Locale): string {
+  return `${t.session} ${index + 1} (${formatTime(session.start, locale)}-${formatTime(
+    session.end,
+    locale,
+  )}): ${summarizeCounts(session.counts, t)}`;
+}
+
+function fillTemplate(template: string, values: Record<string, string>): string {
+  return Object.entries(values).reduce((result, [key, value]) => result.replace(`{${key}}`, value), template);
+}
+
+function buildDayShareText(day: HistoryDay, t: Messages): string {
+  return fillTemplate(t.shareDayTemplate, {
+    appName: t.appTitle,
+    count: summarizeCounts(day.totals, t),
+    date: day.label,
+    url: APP_SHARE_URL,
+  });
+}
+
+function buildSessionShareText(day: HistoryDay, session: HistorySession, t: Messages): string {
+  return fillTemplate(t.shareSessionTemplate, {
+    appName: t.appTitle,
+    count: summarizeCounts(session.counts, t),
+    date: day.label,
+    url: APP_SHARE_URL,
+  });
 }
 
 function buildHistoryDays(history: ReturnType<typeof useRepHistory>["history"], locale: Locale): HistoryDay[] {
@@ -814,6 +847,45 @@ function OverviewScreen({
   onResetProgress: () => void;
 }) {
   const hasProgress = totals.pushups > 0 || totals.squats > 0 || historyDays.length > 0;
+  const [sharePanelDayKey, setSharePanelDayKey] = useState<string | null>(null);
+  const [shareScope, setShareScope] = useState<ShareScope>("day");
+  const [selectedShareSessionId, setSelectedShareSessionId] = useState("");
+
+  const handleOpenSharePanel = (day: HistoryDay) => {
+    setSharePanelDayKey((current) => (current === day.key ? null : day.key));
+    setShareScope("day");
+    setSelectedShareSessionId(day.sessions[0]?.sessionId ?? "");
+  };
+
+  const handleShare = async (day: HistoryDay) => {
+    const selectedSession =
+      shareScope === "session"
+        ? day.sessions.find((session) => session.sessionId === selectedShareSessionId) ?? day.sessions[0]
+        : null;
+    const text =
+      selectedSession === null
+        ? buildDayShareText(day, t)
+        : buildSessionShareText(day, selectedSession, t);
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: t.workoutShareTitle, text });
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+        window.alert(t.shareUnavailable);
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      window.alert(t.shareTextCopied);
+    } catch {
+      window.alert(t.shareUnavailable);
+    }
+  };
 
   return (
     <div className="grid gap-6">
@@ -873,6 +945,75 @@ function OverviewScreen({
 
                 {isExpanded && (
                   <div className="grid gap-2 border-t border-[#444933]/70 p-3 sm:p-4">
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[#26d9d0] px-3 text-xs font-bold uppercase tracking-[0.08em] text-[#8ff4ec] transition hover:bg-[#26d9d0] hover:text-[#061b19]"
+                        onClick={() => handleOpenSharePanel(day)}
+                      >
+                        <Share2 size={16} aria-hidden="true" />
+                        {t.share}
+                      </button>
+                    </div>
+
+                    {sharePanelDayKey === day.key && (
+                      <div className="grid gap-3 rounded-sm border border-[#444933]/70 bg-[#131314]/70 p-4">
+                        <div className="grid gap-2 sm:grid-cols-[auto_1fr] sm:items-center">
+                          <span className="text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac]">
+                            {t.shareScope}
+                          </span>
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            <label className="flex min-h-10 items-center gap-2 rounded-sm border border-[#444933] px-3 text-sm text-white">
+                              <input
+                                type="radio"
+                                name={`share-scope-${day.key}`}
+                                className="accent-[#c3f400]"
+                                checked={shareScope === "day"}
+                                onChange={() => setShareScope("day")}
+                              />
+                              {t.shareDay}
+                            </label>
+                            <label className="flex min-h-10 items-center gap-2 rounded-sm border border-[#444933] px-3 text-sm text-white">
+                              <input
+                                type="radio"
+                                name={`share-scope-${day.key}`}
+                                className="accent-[#c3f400]"
+                                checked={shareScope === "session"}
+                                onChange={() => setShareScope("session")}
+                              />
+                              {t.shareSession}
+                            </label>
+                          </div>
+                        </div>
+
+                        {shareScope === "session" && (
+                          <label className="grid gap-2 text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac]">
+                            {t.selectSession}
+                            <select
+                              className="min-h-11 rounded-md border border-[#444933] bg-[#0f1011] px-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition focus:border-[#c3f400]"
+                              value={selectedShareSessionId}
+                              onChange={(event) => setSelectedShareSessionId(event.target.value)}
+                            >
+                              {day.sessions.map((session, index) => (
+                                <option key={session.sessionId} value={session.sessionId}>
+                                  {summarizeSession(session, index, t, locale)}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        )}
+
+                        <button
+                          type="button"
+                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#c3f400] px-4 text-sm font-black uppercase tracking-[0.08em] text-[#161e00] transition hover:bg-[#d8ff3d] sm:justify-self-end"
+                          onClick={() => void handleShare(day)}
+                        >
+                          <Share2 size={17} aria-hidden="true" />
+                          {t.shareResults}
+                        </button>
+                      </div>
+                    )}
+
                     {day.sessions.map((session, index) => (
                       <div
                         key={session.sessionId}

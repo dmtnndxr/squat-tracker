@@ -21,6 +21,17 @@ export type Messages = {
   resetProgress: string;
   reset: string;
   exportCsv: string;
+  share: string;
+  shareResults: string;
+  shareScope: string;
+  shareDay: string;
+  shareSession: string;
+  selectSession: string;
+  shareTextCopied: string;
+  shareUnavailable: string;
+  workoutShareTitle: string;
+  shareDayTemplate: string;
+  shareSessionTemplate: string;
   menu: string;
   closeMenu: string;
   overview: string;
@@ -129,6 +140,17 @@ export const messages: Record<Locale, Messages> = {
     resetProgress: "Reset progress",
     reset: "Reset",
     exportCsv: "Export CSV",
+    share: "Share",
+    shareResults: "Share results",
+    shareScope: "Share",
+    shareDay: "Whole day",
+    shareSession: "One session",
+    selectSession: "Select session",
+    shareTextCopied: "Share text copied to clipboard.",
+    shareUnavailable: "Sharing is unavailable in this browser.",
+    workoutShareTitle: "Workout results",
+    shareDayTemplate: "Logged {count} on {date} with {appName}.\n\nTrain with me:\n{url}",
+    shareSessionTemplate: "Workout complete: {count} logged on {date} with {appName}.\n\nTrain with me:\n{url}",
     menu: "Menu",
     closeMenu: "Close menu",
     overview: "Overview",
@@ -239,6 +261,17 @@ export const messages: Record<Locale, Messages> = {
     resetProgress: "Сбросить прогресс",
     reset: "Сбросить",
     exportCsv: "Экспорт CSV",
+    share: "Поделиться",
+    shareResults: "Поделиться результатами",
+    shareScope: "Поделиться",
+    shareDay: "Весь день",
+    shareSession: "Один подход",
+    selectSession: "Выберите подход",
+    shareTextCopied: "Текст для отправки скопирован в буфер обмена.",
+    shareUnavailable: "Отправка недоступна в этом браузере.",
+    workoutShareTitle: "Результаты тренировки",
+    shareDayTemplate: "Записано {count} за {date} в {appName}.\n\nТренируйся со мной:\n{url}",
+    shareSessionTemplate: "Тренировка завершена: {count} за {date} в {appName}.\n\nТренируйся со мной:\n{url}",
     menu: "Меню",
     closeMenu: "Закрыть меню",
     overview: "Обзор",
