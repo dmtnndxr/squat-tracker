@@ -45,7 +45,7 @@ function ExerciseButton({
   return (
     <button
       type="button"
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-sm px-3 text-xs font-black uppercase tracking-[0.08em] transition ${
+      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-sm px-2 text-[0.7rem] font-black uppercase tracking-[0.06em] transition sm:min-h-11 sm:px-3 sm:text-xs sm:tracking-[0.08em] ${
         isSelected ? "bg-[#c3f400] text-[#161e00]" : "text-[#c4c9ac] hover:bg-white/10 hover:text-white"
       }`}
       onClick={onClick}

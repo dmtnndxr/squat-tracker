@@ -26,7 +26,7 @@ export function CameraControls({
     <div className="flex w-full max-w-sm items-stretch rounded-md shadow-[0_18px_50px_rgba(0,0,0,0.24)]">
       <button
         type="button"
-        className={`inline-flex min-h-14 min-w-0 flex-1 items-center justify-center gap-3 px-6 text-sm font-black uppercase tracking-[0.1em] transition active:scale-[0.99] ${
+        className={`inline-flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 px-4 text-xs font-black uppercase tracking-[0.08em] transition active:scale-[0.99] sm:min-h-14 sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[0.1em] ${
           canSwitchCamera ? "rounded-l-md rounded-r-none" : "rounded-md"
         } ${
           isCameraActive
@@ -41,7 +41,7 @@ export function CameraControls({
       </button>
 
       {canSwitchCamera && (
-        <div className="relative min-h-14 w-14 shrink-0 overflow-hidden rounded-r-md border-l border-[#1f0700]/25 bg-[#ff6b35] text-[#1f0700] transition hover:bg-[#ff855c]">
+        <div className="relative min-h-12 w-12 shrink-0 overflow-hidden rounded-r-md border-l border-[#1f0700]/25 bg-[#ff6b35] text-[#1f0700] transition hover:bg-[#ff855c] sm:min-h-14 sm:w-14">
           <span className="pointer-events-none absolute inset-0 grid place-items-center">
             <ChevronDown size={22} strokeWidth={2.6} aria-hidden="true" />
           </span>

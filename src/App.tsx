@@ -491,7 +491,7 @@ function App() {
   }, []);
 
   return (
-    <main className="min-h-dvh overflow-hidden bg-[#131314] font-mono text-white">
+    <main className="h-dvh overflow-hidden bg-[#131314] font-mono text-white">
       {activeSection === "main" ? (
         <MainScreen
           t={t}
@@ -664,7 +664,7 @@ function MainScreen({
   const isTrackingSourceActive = isCameraActive || isVideoFileLoaded;
 
   return (
-    <section className="relative min-h-dvh overflow-hidden">
+    <section className="relative h-dvh overflow-hidden">
       <CameraView
         t={t}
         selectedExercise={selectedExercise}
@@ -681,19 +681,19 @@ function MainScreen({
 
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.34),rgba(0,0,0,0.05)_32%,rgba(0,0,0,0.78)),linear-gradient(90deg,rgba(0,0,0,0.5),transparent_24%,transparent_76%,rgba(0,0,0,0.35))]" />
 
-      <header className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex items-start justify-between p-4 sm:p-6">
+      <header className="pointer-events-none absolute left-0 right-0 top-0 z-20 flex items-start justify-between p-3 sm:p-6">
         <div className="pointer-events-auto relative">
           <div className="flex items-center gap-3">
             <button
               type="button"
-              className="grid h-11 w-11 place-items-center rounded-md border border-[#444933]/70 bg-[#131314]/75 text-white shadow-2xl backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400]"
+              className="grid h-10 w-10 place-items-center rounded-md border border-[#444933]/70 bg-[#131314]/75 text-white shadow-2xl backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400] sm:h-11 sm:w-11"
               onClick={onToggleMenu}
               aria-label={t.menu}
               aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
             </button>
-            <p className="rounded-md border border-[#444933]/60 bg-[#131314]/65 px-3 py-2 text-sm font-black uppercase tracking-[0.12em] text-white shadow-2xl backdrop-blur">
+            <p className="rounded-md border border-[#444933]/60 bg-[#131314]/65 px-2.5 py-2 text-xs font-black uppercase tracking-[0.1em] text-white shadow-2xl backdrop-blur sm:px-3 sm:text-sm sm:tracking-[0.12em]">
               {t.appTitle}
             </p>
           </div>
@@ -704,7 +704,7 @@ function MainScreen({
           href={GITHUB_URL}
           target="_blank"
           rel="noreferrer"
-          className="pointer-events-auto grid h-11 w-11 place-items-center rounded-md border border-[#444933]/70 bg-[#131314]/75 text-white shadow-2xl backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400] focus:outline-none focus:ring-2 focus:ring-[#c3f400]/70 focus:ring-offset-2 focus:ring-offset-[#131314]"
+          className="pointer-events-auto grid h-10 w-10 place-items-center rounded-md border border-[#444933]/70 bg-[#131314]/75 text-white shadow-2xl backdrop-blur transition hover:border-[#c3f400] hover:text-[#c3f400] focus:outline-none focus:ring-2 focus:ring-[#c3f400]/70 focus:ring-offset-2 focus:ring-offset-[#131314] sm:h-11 sm:w-11"
           aria-label="GitHub"
         >
           <Github size={20} aria-hidden="true" />
@@ -713,18 +713,18 @@ function MainScreen({
 
       <div
         className={`pointer-events-none absolute inset-x-4 z-10 text-center ${
-          isTrackingSourceActive ? "top-28" : "top-1/2 -translate-y-1/2"
+          isTrackingSourceActive ? "top-24 sm:top-28" : "top-1/2 -translate-y-1/2"
         }`}
       >
         <div
           className={`mx-auto rounded-md border border-white/10 bg-[#131314]/35 shadow-2xl backdrop-blur-sm ${
-            isTrackingSourceActive ? "max-w-xs px-4 py-3" : "max-w-md px-6 py-7"
+            isTrackingSourceActive ? "max-w-xs px-4 py-3" : "max-w-md px-4 py-5 sm:px-6 sm:py-7"
           }`}
         >
           {isTrackingSourceActive && activeSessionCount > 0 ? (
             <>
               <p className="text-sm uppercase tracking-[0.28em] text-[#c3f400]">{selectedExerciseLabel}</p>
-              <p className="mt-1 text-5xl font-black leading-none text-white sm:text-6xl">{activeSessionCount}</p>
+              <p className="mt-1 text-4xl font-black leading-none text-white sm:text-6xl">{activeSessionCount}</p>
               <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[#c4c9ac]">{t.currentSession}</p>
             </>
           ) : isTrackingSourceActive ? (
@@ -736,7 +736,7 @@ function MainScreen({
             </>
           ) : selectedExerciseTotal === 0 ? (
             <>
-              <p className="text-3xl font-black leading-tight text-white sm:text-4xl">{t.noRepsYet}</p>
+              <p className="text-2xl font-black leading-tight text-white sm:text-4xl">{t.noRepsYet}</p>
               <p className="mt-4 text-sm text-[#c4c9ac]">
                 {t.firstRepPrompt.replace("{exercise}", firstRepExerciseText)}
               </p>
@@ -744,10 +744,10 @@ function MainScreen({
           ) : (
             <>
               <p className="text-sm uppercase tracking-[0.28em] text-[#c4c9ac]">{t.allTimeTotal}</p>
-              <p className="mt-2 text-7xl font-black leading-none text-[#c3f400] sm:text-8xl">
+              <p className="mt-2 text-6xl font-black leading-none text-[#c3f400] sm:text-8xl">
                 {selectedExerciseTotal}
               </p>
-              <p className="mt-5 text-2xl font-black leading-tight text-white sm:text-3xl">{t.continueWorkoutPrompt}</p>
+              <p className="mt-4 text-xl font-black leading-tight text-white sm:mt-5 sm:text-3xl">{t.continueWorkoutPrompt}</p>
               <p className="mt-3 text-sm text-[#c4c9ac]">{t.addMoreRepsPrompt}</p>
             </>
           )}
@@ -781,7 +781,7 @@ function MainScreen({
         />
       )}
 
-      <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-2 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:gap-3 sm:px-4 sm:pb-[max(1rem,env(safe-area-inset-bottom))]">
         <CameraControls
           t={t}
           isCameraActive={isCameraActive}
@@ -808,18 +808,18 @@ function ContentScreen({
   children: ReactNode;
 }) {
   return (
-    <section className="min-h-dvh overflow-auto bg-[#131314] bg-[radial-gradient(circle_at_top_left,rgba(195,244,0,0.11),transparent_34%),linear-gradient(180deg,#1c1b1c,#131314)] px-4 py-5 text-white sm:px-8 sm:py-8">
+    <section className="h-dvh overflow-auto bg-[#131314] bg-[radial-gradient(circle_at_top_left,rgba(195,244,0,0.11),transparent_34%),linear-gradient(180deg,#1c1b1c,#131314)] px-3 py-4 text-white sm:px-8 sm:py-8">
       <div className="mx-auto max-w-5xl">
-        <header className="mb-8 flex items-center justify-between gap-4">
+        <header className="mb-5 flex items-center justify-between gap-3 sm:mb-8 sm:gap-4">
           <button
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-[#444933] bg-[#1c1b1c] text-[#c4c9ac] transition hover:border-[#c3f400] hover:text-[#c3f400]"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#444933] bg-[#1c1b1c] text-[#c4c9ac] transition hover:border-[#c3f400] hover:text-[#c3f400] sm:h-11 sm:w-11"
             onClick={onBack}
             aria-label={t.backToMain}
           >
             <X size={20} aria-hidden="true" />
           </button>
-          <h1 className="text-right text-3xl font-black uppercase tracking-[0.12em] sm:text-5xl">{title}</h1>
+          <h1 className="text-right text-2xl font-black uppercase tracking-[0.08em] sm:text-5xl sm:tracking-[0.12em]">{title}</h1>
         </header>
         {children}
       </div>
@@ -888,21 +888,23 @@ function OverviewScreen({
   };
 
   return (
-    <div className="grid gap-6">
-      <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <StatCard label={t.squats} value={totals.squats} />
         <StatCard label={t.pushups} value={totals.pushups} />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-black uppercase tracking-[0.12em] text-white">{t.activityByDay}</h2>
+          <h2 className="text-base font-black uppercase tracking-[0.1em] text-white sm:text-lg sm:tracking-[0.12em]">
+            {t.activityByDay}
+          </h2>
           <p className="mt-1 text-sm text-[#c4c9ac]">{t.sessionsGrouped}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[#c3f400] px-4 text-sm font-bold uppercase tracking-[0.08em] text-[#c3f400] transition hover:bg-[#c3f400] hover:text-[#161e00]"
+            className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[#c3f400] px-3 text-xs font-bold uppercase tracking-[0.08em] text-[#c3f400] transition hover:bg-[#c3f400] hover:text-[#161e00] sm:min-h-11 sm:px-4 sm:text-sm"
             onClick={onExportCsv}
           >
             <Download size={17} aria-hidden="true" />
@@ -910,7 +912,7 @@ function OverviewScreen({
           </button>
           <button
             type="button"
-            className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[#444933] px-4 text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac] transition hover:border-white hover:text-white"
+            className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[#444933] px-3 text-xs font-bold uppercase tracking-[0.08em] text-[#c4c9ac] transition hover:border-white hover:text-white sm:min-h-11 sm:px-4 sm:text-sm"
             onClick={onResetProgress}
             disabled={!hasProgress}
           >
@@ -922,7 +924,7 @@ function OverviewScreen({
 
       <div className="grid gap-3">
         {historyDays.length === 0 ? (
-          <div className="rounded-md border border-dashed border-[#444933] bg-[#1c1b1c]/70 p-6 text-[#c4c9ac]">
+          <div className="rounded-md border border-dashed border-[#444933] bg-[#1c1b1c]/70 p-4 text-sm text-[#c4c9ac] sm:p-6 sm:text-base">
             {t.noSessionHistory}
           </div>
         ) : (
@@ -933,7 +935,7 @@ function OverviewScreen({
               <article key={day.key} className="overflow-hidden rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85">
                 <button
                   type="button"
-                  className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left sm:px-5"
+                  className="flex w-full items-center justify-between gap-4 px-3 py-3 text-left sm:px-5 sm:py-4"
                   onClick={() => onToggleDay(day.key)}
                 >
                   <div>
@@ -957,12 +959,12 @@ function OverviewScreen({
                     </div>
 
                     {sharePanelDayKey === day.key && (
-                      <div className="grid gap-3 rounded-sm border border-[#444933]/70 bg-[#131314]/70 p-4">
+                      <div className="grid min-w-0 gap-3 rounded-sm border border-[#444933]/70 bg-[#131314]/70 p-3 sm:p-4">
                         <div className="grid gap-2 sm:grid-cols-[auto_1fr] sm:items-center">
                           <span className="text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac]">
                             {t.shareScope}
                           </span>
-                          <div className="grid gap-2 sm:grid-cols-2">
+                          <div className="grid min-w-0 gap-2 sm:grid-cols-2">
                             <label className="flex min-h-10 items-center gap-2 rounded-sm border border-[#444933] px-3 text-sm text-white">
                               <input
                                 type="radio"
@@ -987,10 +989,10 @@ function OverviewScreen({
                         </div>
 
                         {shareScope === "session" && (
-                          <label className="grid gap-2 text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac]">
+                          <label className="grid min-w-0 gap-2 text-sm font-bold uppercase tracking-[0.08em] text-[#c4c9ac]">
                             {t.selectSession}
                             <select
-                              className="min-h-11 rounded-md border border-[#444933] bg-[#0f1011] px-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition focus:border-[#c3f400]"
+                              className="min-h-11 min-w-0 max-w-full rounded-md border border-[#444933] bg-[#0f1011] px-3 text-sm font-medium normal-case tracking-normal text-white outline-none transition focus:border-[#c3f400]"
                               value={selectedShareSessionId}
                               onChange={(event) => setSelectedShareSessionId(event.target.value)}
                             >
@@ -1017,9 +1019,9 @@ function OverviewScreen({
                     {day.sessions.map((session, index) => (
                       <div
                         key={session.sessionId}
-                        className="grid gap-1 rounded-sm bg-[#131314]/70 p-4 text-sm sm:grid-cols-[1fr_auto] sm:items-center"
+                        className="grid min-w-0 gap-1 rounded-sm bg-[#131314]/70 p-3 text-sm sm:grid-cols-[1fr_auto] sm:items-center sm:p-4"
                       >
-                        <span className="font-bold text-white">
+                        <span className="min-w-0 font-bold text-white">
                           {t.session} {index + 1}: {summarizeCounts(session.counts, t)}
                         </span>
                         <span className="text-[#c4c9ac]">
@@ -1056,10 +1058,10 @@ function SettingsScreen({
   onSoundChange: (enabled: boolean) => void;
 }) {
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-3 sm:gap-4">
       <SettingsRow icon={<Settings size={20} aria-hidden="true" />} label={t.language}>
         <select
-          className="min-h-11 rounded-md border border-[#444933] bg-[#131314] px-4 text-sm font-bold text-white outline-none focus:border-[#c3f400]"
+          className="min-h-10 rounded-md border border-[#444933] bg-[#131314] px-3 text-sm font-bold text-white outline-none focus:border-[#c3f400] sm:min-h-11 sm:px-4"
           value={locale}
           onChange={(event) => onLocaleChange(event.target.value as Locale)}
         >
@@ -1081,15 +1083,17 @@ function SettingsScreen({
 
 function AboutScreen({ t }: { t: Messages }) {
   return (
-    <article className="rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-6 shadow-2xl sm:p-8">
-      <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#c3f400] text-[#161e00]">
-        <Info size={24} aria-hidden="true" />
+    <article className="rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-4 shadow-2xl sm:p-8">
+      <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-[#c3f400] text-[#161e00] sm:mb-5 sm:h-12 sm:w-12">
+        <Info size={22} aria-hidden="true" />
       </div>
-      <h2 className="text-2xl font-black uppercase tracking-[0.1em] text-white">{t.aboutTitle}</h2>
-      <p className="mt-4 max-w-3xl text-base leading-7 text-[#c4c9ac]">
+      <h2 className="text-xl font-black uppercase tracking-[0.08em] text-white sm:text-2xl sm:tracking-[0.1em]">
+        {t.aboutTitle}
+      </h2>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-[#c4c9ac] sm:mt-4 sm:text-base sm:leading-7">
         {t.aboutDescription}
       </p>
-      <p className="mt-4 max-w-3xl text-sm leading-6 text-[#8e9379]">
+      <p className="mt-3 max-w-3xl text-xs leading-5 text-[#8e9379] sm:mt-4 sm:text-sm sm:leading-6">
         {t.aboutPrivacy}
       </p>
     </article>
@@ -1098,19 +1102,21 @@ function AboutScreen({ t }: { t: Messages }) {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-5">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#c4c9ac]">{label}</p>
-      <p className="mt-3 text-5xl font-black leading-none text-white">{value}</p>
+    <div className="min-w-0 rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-3 sm:p-5">
+      <p className="truncate text-[0.65rem] font-bold uppercase tracking-[0.1em] text-[#c4c9ac] sm:text-xs sm:tracking-[0.18em]">
+        {label}
+      </p>
+      <p className="mt-2 text-3xl font-black leading-none text-white sm:mt-3 sm:text-5xl">{value}</p>
     </div>
   );
 }
 
 function SettingsRow({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
-    <div className="grid gap-4 rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+    <div className="grid gap-3 rounded-md border border-[#444933]/80 bg-[#1c1b1c]/85 p-4 sm:grid-cols-[1fr_auto] sm:items-center sm:gap-4 sm:p-5">
       <div className="flex items-center gap-3 text-white">
         <span className="text-[#c3f400]">{icon}</span>
-        <span className="font-black uppercase tracking-[0.12em]">{label}</span>
+        <span className="text-sm font-black uppercase tracking-[0.1em] sm:text-base sm:tracking-[0.12em]">{label}</span>
       </div>
       {children}
     </div>
@@ -1121,7 +1127,7 @@ function ToggleButton({ t, enabled, onChange }: { t: Messages; enabled: boolean;
   return (
     <button
       type="button"
-      className={`inline-flex min-h-11 min-w-32 items-center justify-between gap-3 rounded-md border px-4 text-sm font-black uppercase tracking-[0.08em] transition ${
+      className={`inline-flex min-h-10 min-w-28 items-center justify-between gap-3 rounded-md border px-3 text-sm font-black uppercase tracking-[0.08em] transition sm:min-h-11 sm:min-w-32 sm:px-4 ${
         enabled
           ? "border-[#c3f400] bg-[#c3f400] text-[#161e00]"
           : "border-[#444933] bg-[#131314] text-[#c4c9ac]"
